@@ -20,14 +20,17 @@ public class Tokenizer {
 
     public boolean hasNextToken() throws IOException {
         // what about lines that start with '//'
-        if (currentLine == null || (this.currentIndex == this.currentLine.length - 1)
+        if (currentLine == null || (this.currentIndex == this.currentLine.length)
             || (this.currentLine[this.currentIndex].startsWith("//"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-
-            }
+            String line = reader.readLine();
             if (line == null) {
                 return false;
+            }
+            while (line.startsWith("//")) {
+                line = reader.readLine();
+                if (line == null) {
+                    return false;
+                }
             }
             this.currentLine = line.split("\\s");
             this.currentIndex = 0;
