@@ -1,5 +1,3 @@
-import com.sun.javafx.scene.control.skin.VirtualFlow;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,6 +13,11 @@ public class Tokenizer {
     private int currentIndex; // keeps track of where the Tokenizer is at in the current line
     private List<String> tokens;
 
+    /**
+     * Tokenizes a Jack source code file and initializes the Tokenizer
+     * @param sourceFile the Jack source code file
+     * @throws IOException IOException
+     */
     public Tokenizer(File sourceFile) throws IOException {
         this.tokens = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile))) {
