@@ -48,4 +48,17 @@ class TokenizerTest {
         }
         assertFalse(tokenizer.hasNextToken());
     }
+
+    @Test
+    void testJackCodeWithStringLiteral() throws IOException {
+        File inputFile = new File("jack_test_string_lit.txt");
+        Tokenizer tokenizer = new Tokenizer(inputFile);
+        List<String> expectedTokens = Arrays.asList("var", "String", "str",
+                ";", "let", "str", "=", "\"hello world\"", ";");
+        for (int i = 0; i < expectedTokens.size(); i++) {
+            assertTrue(tokenizer.hasNextToken());
+            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+        }
+        assertFalse(tokenizer.hasNextToken());
+    }
 }

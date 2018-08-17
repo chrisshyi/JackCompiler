@@ -19,7 +19,7 @@ public class Tokenizer {
         this.tokens = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile))) {
             String line;
-            Pattern tokenPattern = Pattern.compile("\\w+|\\d+|[\\{\\}\\(\\)\\[\\]\\.,;\\+\\-*/&|<>=~]|\"\\w+\"");
+            Pattern tokenPattern = Pattern.compile("\\w+|\\d+|[\\{\\}\\(\\)\\[\\]\\.,;\\+\\-*/&|<>=~]|\"[\\w ]+\"");
             while ((line = reader.readLine()) != null) {
                 Matcher matcher = tokenPattern.matcher(line);
                 while (matcher.find()) {
