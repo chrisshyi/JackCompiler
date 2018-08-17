@@ -1,0 +1,10 @@
+class JackTest {
+    field int value;
+    field Array arr;
+
+    constructor new(int x, Array y) {
+        let value = x;
+        let arr = y;
+        return this;
+    }
+}
