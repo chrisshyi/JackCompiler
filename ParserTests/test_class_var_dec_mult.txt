@@ -1,0 +1,1 @@
+static String myStr1, myStr2, myStr3;
