@@ -68,4 +68,55 @@ class ParserTest {
         assertEquals(expected, parser.compileParamList());
     }
 
+    @Test
+    void testTermIntegerConstant() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_term_int_const.txt"));
+        String expected = "<integerConstant>127374</integerConstant>\n";
+        assertEquals(expected, parser.compileTerm());
+    }
+
+    @Test
+    void testTermStringConstant() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_term_string_const.txt"));
+        String expected = "<StringConstant>hello world</StringConstant>\n";
+        assertEquals(expected, parser.compileTerm());
+    }
+
+    @Test
+    void testTermUnaryOp() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_term_unary_op.txt"));
+        String expected = "<symbol>~</symbol>\n" +
+                "<identifier>myBool</identifier>\n";
+        assertEquals(expected, parser.compileTerm());
+    }
+
+    @Test
+    void testExpressionSingleTerm() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_expression_single_term.txt"));
+        String expected = "<identifier>myArray</identifier>\n" +
+                "<symbol>[</symbol>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>]</symbol>\n";
+        assertEquals(expected, parser.compileExpression());
+    }
+
+    @Test
+    void testExpressionMultipleTerm() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_expression_multiple_term.txt"));
+        String expected = "<identifier>myArr</identifier>\n" +
+                "<symbol>[</symbol>\n" +
+                "<integerConstant>0</integerConstant>\n" +
+                "<symbol>]</symbol>\n" +
+                "<symbol>=</symbol>\n" +
+                "<identifier>Helper</identifier>\n" +
+                "<symbol>.</symbol>\n" +
+                "<identifier>myMethod</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<StringConstant>hello</StringConstant>\n" +
+                "<symbol>,</symbol>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>)</symbol>\n";
+        assertEquals(expected, parser.compileExpression());
+    }
+
 }

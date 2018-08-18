@@ -43,9 +43,20 @@ public class Tokenizer {
         return !(this.currentIndex == this.tokens.size());
     }
 
+    /**
+     * Returns the next token
+     * @return the next token
+     */
     public String getNextToken() {
         String currentToken = this.tokens.get(this.currentIndex);
         currentIndex++;
         return currentToken;
+    }
+
+    /**
+     * Backtracks the token iteration, needed where Jack is an LL(2) language
+     */
+    public void backTrack() {
+        currentIndex--;
     }
 }

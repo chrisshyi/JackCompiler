@@ -1,0 +1,1 @@
+myArr[0] = Helper.myMethod("hello", 10)
