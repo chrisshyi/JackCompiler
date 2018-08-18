@@ -272,9 +272,9 @@ public class Parser {
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals("else")) {
             sb.append(formatFromTemplate("keyword", nextToken));
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
             sb.append(compileStatements());
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // }
         } else {
             tokenizer.backTrack();
         }
@@ -343,6 +343,16 @@ public class Parser {
         String methodName = "compile" + nextToken.substring(0, 1).toUpperCase() + nextToken.substring(1) + "Statement";
         try {
             sb.append(this.getClass().getMethod(methodName).invoke(this));
+            while (tokenizer.hasNextToken()) {
+                nextToken = tokenizer.getNextToken();
+                if (possibleStatements.contains(nextToken)) {
+                    tokenizer.backTrack();
+                    sb.append(compileStatements());
+                } else {
+                    tokenizer.backTrack();
+                    break;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

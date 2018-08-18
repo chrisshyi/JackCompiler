@@ -1,0 +1,3 @@
+(a < myVar) {
+    return a + 1;
+}

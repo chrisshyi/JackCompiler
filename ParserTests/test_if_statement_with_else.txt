@@ -1,0 +1,6 @@
+(a < myVar) {
+    return a + 1;
+} else {
+    do subroutine.call();
+    return 10;
+}

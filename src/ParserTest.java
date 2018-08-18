@@ -180,4 +180,51 @@ class ParserTest {
         assertEquals(expected, parser.compileLetStatement());
     }
 
+    @Test
+    void testIfStatementNoElse() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_if_statement_no_else.txt"));
+        String expected = "<symbol>(</symbol>\n" + "<identifier>a</identifier>\n" +
+                "<symbol><</symbol>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<identifier>a</identifier>\n" +
+                "<symbol>+</symbol>\n" +
+                "<integerConstant>1</integerConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n";
+        assertEquals(expected, parser.compileIfStatement());
+    }
+
+    @Test
+    void testIfStatementWithElse() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_if_statement_with_else.txt"));
+        String expected = "<symbol>(</symbol>\n" + "<identifier>a</identifier>\n" +
+                "<symbol><</symbol>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<identifier>a</identifier>\n" +
+                "<symbol>+</symbol>\n" +
+                "<integerConstant>1</integerConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n" +
+                "<keyword>else</keyword>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>do</keyword>\n" +
+                "<identifier>subroutine</identifier>\n" +
+                "<symbol>.</symbol>\n" +
+                "<identifier>call</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n";
+        assertEquals(expected, parser.compileIfStatement());
+    }
+
 }
