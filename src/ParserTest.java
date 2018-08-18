@@ -119,4 +119,65 @@ class ParserTest {
         assertEquals(expected, parser.compileExpression());
     }
 
+    @Test
+    void testExpressionList() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_expression_list.txt"));
+        String expected = "<keyword>true</keyword>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>a</identifier>\n" +
+                "<symbol>+</symbol>\n" +
+                "<identifier>b</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>[</symbol>\n" +
+                "<integerConstant>0</integerConstant>\n" +
+                "<symbol>]</symbol>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>c</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<symbol>~</symbol>\n" +
+                "<identifier>d</identifier>\n";
+        assertEquals(expected, parser.compileExpressionList());
+    }
+
+    @Test
+    void testReturnStatement() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_return_statement.txt"));
+        String expected = "<identifier>myArr</identifier>\n" +
+                "<symbol>[</symbol>\n" +
+                "<identifier>a</identifier>\n" +
+                "<symbol>+</symbol>\n" +
+                "<identifier>b</identifier>\n" +
+                "<symbol>]</symbol>\n" +
+                "<symbol>;</symbol>\n";
+        assertEquals(expected, parser.compileReturnStatement());
+    }
+
+    @Test
+    void testLetStatementNoExp() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_let_statement_no_exp.txt"));
+        String expected = "<identifier>var1</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<identifier>a</identifier>\n" +
+                "<symbol>/</symbol>\n" +
+                "<identifier>b</identifier>\n" +
+                "<symbol>;</symbol>\n";
+        assertEquals(expected, parser.compileLetStatement());
+    }
+
+    @Test
+    void testLetStatementExp() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_let_statement_exp.txt"));
+        String expected = "<identifier>var1</identifier>\n" +
+                "<symbol>[</symbol>\n" +
+                "<identifier>counter</identifier>\n" +
+                "<symbol>]</symbol>\n" +
+                "<symbol>=</symbol>\n" +
+                "<identifier>a</identifier>\n" +
+                "<symbol>/</symbol>\n" +
+                "<identifier>b</identifier>\n" +
+                "<symbol>;</symbol>\n";
+        assertEquals(expected, parser.compileLetStatement());
+    }
+
 }

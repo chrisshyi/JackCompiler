@@ -1,4 +1,5 @@
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -178,6 +179,7 @@ public class Parser {
                 sb.append(compileSubroutineCall());
             } else {
                 sb.append(formatFromTemplate("identifier", nextToken));
+                tokenizer.backTrack();
             }
         }
         return sb.toString();
@@ -317,6 +319,7 @@ public class Parser {
         } else {
             tokenizer.backTrack();
             sb.append(compileExpression());
+            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
         }
         return sb.toString();
     }
@@ -336,22 +339,12 @@ public class Parser {
             return "";
         }
         sb.append(formatFromTemplate("keyword", nextToken));
-        switch (nextToken) {
-            case "let":
-                sb.append(compileLetStatement());
-                break;
-            case "if":
-                sb.append(compileIfStatement());
-                break;
-            case "while":
-                sb.append(compileWhileStatement());
-                break;
-            case "do":
-                sb.append(compileDoStatement());
-                break;
-            case "return":
-                sb.append(compileReturnStatement());
-                break;
+        // use reflection to call the appropriate statement compilation method
+        String methodName = "compile" + nextToken.substring(0, 1).toUpperCase() + nextToken.substring(1) + "Statement";
+        try {
+            sb.append(this.getClass().getMethod(methodName).invoke(this));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return sb.toString();
     }
