@@ -41,21 +41,13 @@ public class Parser {
     }
 
     /**
-     * Recursively compiles the XML representation of a class declaration
-     * @return
-     */
-    String compileClass() {
-        return null;
-    }
-
-    /**
      * Compiles the XML representation of a class variable declaration
      * @return the XML representation as a string
      */
     String compileClassVarDec() {
         StringBuilder sb = new StringBuilder();
-        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken()));
-        String varType = tokenizer.getNextToken();
+        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "static" or "field"
+        String varType = tokenizer.getNextToken(); // type
         String variable = tokenizer.getNextToken();
         sb.append(compileTypeAndVar(varType, variable));
         String nextToken = tokenizer.getNextToken();
@@ -408,6 +400,7 @@ public class Parser {
      */
     String compileSubroutineDec() {
         StringBuilder sb = new StringBuilder();
+        // "constructor" or "function" or "method"
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken()));
         String nextToken = tokenizer.getNextToken(); // return type
         if (keywordSet.contains(nextToken)) {
@@ -418,6 +411,31 @@ public class Parser {
         sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // subroutine name
         sb.append(compileParamList());
         sb.append(compileSubroutineBody());
+        return sb.toString();
+    }
+
+    /**
+     * Compiles the XML representation of a class declaration
+     * @return the XML representation of a class declaration
+     */
+    String compileClass() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "class"
+        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // className
+        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
+        String nextToken = tokenizer.getNextToken();
+        while (nextToken.equals("static") || nextToken.equals("field")) {
+            tokenizer.backTrack();
+            sb.append(compileClassVarDec());
+            nextToken = tokenizer.getNextToken();
+        }
+        Set<String> subroutineDecKeywords = new HashSet<>(Arrays.asList("constructor", "function", "method"));
+        while (subroutineDecKeywords.contains(nextToken)) {
+            tokenizer.backTrack();
+            sb.append(compileSubroutineDec());
+            nextToken = tokenizer.getNextToken();
+        }
+        sb.append(formatFromTemplate("symbol", nextToken)); // }
         return sb.toString();
     }
 }

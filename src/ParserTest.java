@@ -3,7 +3,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.server.ExportException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -402,5 +401,147 @@ class ParserTest {
                 "<symbol>}</symbol>\n" +
                 "<symbol>}</symbol>\n";
         assertEquals(expected, parser.compileSubroutineDec());
+    }
+
+    @Test
+    void testClassDecNoClassVar() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_class_dec_no_class_var.txt"));
+        String expected = "<keyword>class</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>function</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<identifier>myFunc</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<keyword>int</keyword>\n" +
+                "<identifier>num1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>String</identifier>\n" +
+                "<identifier>str1</identifier>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>var</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<identifier>obj1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj2</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj3</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>if</keyword>\n" +
+                "<symbol>(</symbol>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>do</keyword>\n" +
+                "<identifier>myMethod</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<StringConstant>test</StringConstant>\n" +
+                "<symbol>,</symbol>\n" +
+                "<integerConstant>20</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>let</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<StringConstant>hello</StringConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n" +
+                "<symbol>}</symbol>\n" +
+                "<symbol>}</symbol>\n";
+        assertEquals(expected, parser.compileClass());
+    }
+
+    @Test
+    void testClassDecWithClassVar() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_class_dec_with_class_var.txt"));
+        String expected = "<keyword>class</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>static</keyword>\n" +
+                "<identifier>String</identifier>\n" +
+                "<identifier>myStr1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>myStr2</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>myStr3</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>field</keyword>\n" +
+                "<keyword>int</keyword>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>function</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<identifier>myFunc</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<keyword>int</keyword>\n" +
+                "<identifier>num1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>String</identifier>\n" +
+                "<identifier>str1</identifier>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>var</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<identifier>obj1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj2</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj3</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>if</keyword>\n" +
+                "<symbol>(</symbol>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>do</keyword>\n" +
+                "<identifier>myMethod</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<StringConstant>test</StringConstant>\n" +
+                "<symbol>,</symbol>\n" +
+                "<integerConstant>20</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>let</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<StringConstant>hello</StringConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n" +
+                "<symbol>}</symbol>\n" +
+                "<symbol>}</symbol>\n";
+        assertEquals(expected, parser.compileClass());
+    }
+
+    @Test
+    void testClassDecWithSubroutine() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_class_dec_no_subroutine.txt"));
+        String expected = "<keyword>class</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>static</keyword>\n" +
+                "<identifier>String</identifier>\n" +
+                "<identifier>myStr1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>myStr2</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>myStr3</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>field</keyword>\n" +
+                "<keyword>int</keyword>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n";
+        assertEquals(expected, parser.compileClass());
     }
 }
