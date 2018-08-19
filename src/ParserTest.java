@@ -258,5 +258,27 @@ class ParserTest {
                 assertEquals(expected, parser.compileStatements());
     }
 
+    @Test
+    void testVarDecSingle() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_var_dec_single.txt"));
+        String expected = "<keyword>var</keyword>\n" +
+                "<keyword>int</keyword>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>;</symbol>\n";
+        assertEquals(expected, parser.compileVarDec());
+    }
 
+    @Test
+    void testVarDecMult() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_var_dec_mult.txt"));
+        String expected = "<keyword>var</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<identifier>obj1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj2</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj3</identifier>\n" +
+                "<symbol>;</symbol>\n";
+        assertEquals(expected, parser.compileVarDec());
+    }
 }

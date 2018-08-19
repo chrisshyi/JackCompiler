@@ -358,4 +358,28 @@ public class Parser {
         }
         return sb.toString();
     }
+
+    /**
+     * Compiles the declaration of a local variable into XML
+     * @return the XML representation of the declaration of a local variable
+     */
+    String compileVarDec() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // var
+        String nextToken = tokenizer.getNextToken(); // type
+        if (keywordSet.contains(nextToken)) {
+            sb.append(formatFromTemplate("keyword", nextToken));
+        } else {
+            sb.append(formatFromTemplate("identifier", nextToken));
+        }
+        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken()));
+        nextToken = tokenizer.getNextToken();
+        while (nextToken.equals(",")) {
+            sb.append(formatFromTemplate("symbol", nextToken));
+            sb.append(formatFromTemplate("identifier", tokenizer.getNextToken()));
+            nextToken = tokenizer.getNextToken();
+        }
+        sb.append(formatFromTemplate("symbol", nextToken));
+        return sb.toString();
+    }
 }
