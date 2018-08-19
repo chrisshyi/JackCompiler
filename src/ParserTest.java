@@ -579,4 +579,42 @@ class ParserTest {
                 "<symbol>}</symbol>\n";
         assertEquals(expected, parser.compileStatements());
     }
+
+    @Test
+    void testNestedExpression2() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_nested_expressions_2.txt"));
+        String expected = "<keyword>if</keyword>\n" +
+                "<symbol>(</symbol>\n" +
+                "<symbol>(</symbol>\n" +
+                "<symbol>(</symbol>\n" +
+                "<identifier>y</identifier>\n" +
+                "<symbol>+</symbol>\n" +
+                "<identifier>size</identifier>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol><</symbol>\n" +
+                "<integerConstant>254</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>&</symbol>\n" +
+                "<symbol>(</symbol>\n" +
+                "<symbol>(</symbol>\n" +
+                "<symbol>(</symbol>\n" +
+                "<identifier>x</identifier>\n" +
+                "<symbol>+</symbol>\n" +
+                "<identifier>size</identifier>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>/</symbol>\n" +
+                "<integerConstant>5</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol><</symbol>\n" +
+                "<integerConstant>510</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>do</keyword>\n" +
+                "<identifier>erase</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n";
+    }
 }
