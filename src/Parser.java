@@ -401,4 +401,23 @@ public class Parser {
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
         return sb.toString();
     }
+
+    /**
+     * Compiles the XML representation of a subroutine declaration
+     * @return the XML representation of a subroutine declaration
+     */
+    String compileSubroutineDec() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken()));
+        String nextToken = tokenizer.getNextToken(); // return type
+        if (keywordSet.contains(nextToken)) {
+            sb.append(formatFromTemplate("keyword", nextToken));
+        } else {
+            sb.append(formatFromTemplate("identifier", nextToken));
+        }
+        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // subroutine name
+        sb.append(compileParamList());
+        sb.append(compileSubroutineBody());
+        return sb.toString();
+    }
 }

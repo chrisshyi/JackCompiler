@@ -1,0 +1,9 @@
+function MyClass myFunc(int num1, String str1)
+{
+    var MyClass obj1, obj2, obj3;
+    if (myInt = 10) {
+        do myMethod("test", 20);
+        let myVar = "hello";
+        return myVar;
+    }
+}
