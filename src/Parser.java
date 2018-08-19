@@ -146,13 +146,13 @@ public class Parser {
             sb.append(formatFromTemplate("StringConstant", nextToken.replaceAll("\"", "")));
         } else if (keyWordConstantSet.contains(nextToken)) { // keyword constant
             sb.append(formatFromTemplate("keyword", nextToken));
-        } else if (symbolSet.contains(nextToken)) { // unaryOp
-            sb.append(formatFromTemplate("symbol", nextToken));
-            sb.append(compileTerm());
         } else if (nextToken.equals("(")) { // (expression)
             sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileExpression());
             sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+        } else if (symbolSet.contains(nextToken)) { //unaryOp
+            sb.append(formatFromTemplate("symbol", nextToken));
+            sb.append(compileTerm());
         } else { // either just varName, array indexing or subroutine call
             if (!tokenizer.hasNextToken()) {
                 sb.append(formatFromTemplate("identifier", nextToken));
