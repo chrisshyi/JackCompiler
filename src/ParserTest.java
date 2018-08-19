@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.rmi.server.ExportException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -226,5 +227,36 @@ class ParserTest {
                 "<symbol>}</symbol>\n";
         assertEquals(expected, parser.compileIfStatement());
     }
+
+    @Test
+    void testStatements1() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_statements_1.txt"));
+        String expected = "<keyword>if</keyword>\n" +
+                "<symbol>(</symbol>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>do</keyword>\n" +
+                "<identifier>myMethod</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<StringConstant>test</StringConstant>\n" +
+                "<symbol>,</symbol>\n" +
+                "<integerConstant>20</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>let</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<StringConstant>hello</StringConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n";
+                assertEquals(expected, parser.compileStatements());
+    }
+
 
 }
