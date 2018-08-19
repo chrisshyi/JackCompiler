@@ -1,0 +1,7 @@
+{
+    if (myInt = 10) {
+        do myMethod("test", 20);
+        let myVar = "hello";
+        return myVar;
+    }
+}

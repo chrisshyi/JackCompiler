@@ -332,7 +332,7 @@ public class Parser {
     public String compileStatements() {
         StringBuilder sb = new StringBuilder();
         String nextToken = tokenizer.getNextToken();
-        Set<String> possibleStatements = new HashSet<>(Arrays.asList("let", "if", "" +
+        Set<String> possibleStatements = new HashSet<>(Arrays.asList("let", "if",
                 "while", "do", "return"));
         if (!possibleStatements.contains(nextToken)) {
             tokenizer.backTrack();
@@ -380,6 +380,25 @@ public class Parser {
             nextToken = tokenizer.getNextToken();
         }
         sb.append(formatFromTemplate("symbol", nextToken));
+        return sb.toString();
+    }
+
+    /**
+     * Compiles the XML representation of a subroutine body declaration
+     * @return the XML representation of a subroutine body declaration
+     */
+    String compileSubroutineBody() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+        String nextToken = tokenizer.getNextToken();
+        while (nextToken.equals("var")) {
+            tokenizer.backTrack();
+            sb.append(compileVarDec());
+            nextToken = tokenizer.getNextToken();
+        }
+        tokenizer.backTrack();
+        sb.append(compileStatements());
+        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
         return sb.toString();
     }
 }

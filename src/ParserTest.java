@@ -281,4 +281,76 @@ class ParserTest {
                 "<symbol>;</symbol>\n";
         assertEquals(expected, parser.compileVarDec());
     }
+
+    @Test
+    void testSubroutineBodyNoVarDec() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_subroutine_body_no_var_dec.txt"));
+        String expected = "<symbol>{</symbol>\n" +
+                "<keyword>if</keyword>\n" +
+                "<symbol>(</symbol>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>do</keyword>\n" +
+                "<identifier>myMethod</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<StringConstant>test</StringConstant>\n" +
+                "<symbol>,</symbol>\n" +
+                "<integerConstant>20</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>let</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<StringConstant>hello</StringConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n" +
+                "<symbol>}</symbol>\n";
+        assertEquals(expected, parser.compileSubroutineBody());
+    }
+
+    @Test
+    void testSubroutineBodyWithVarDec() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_subroutine_body_with_var_dec.txt"));
+        String expected = "<symbol>{</symbol>\n" +
+                "<keyword>var</keyword>\n" +
+                "<identifier>MyClass</identifier>\n" +
+                "<identifier>obj1</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj2</identifier>\n" +
+                "<symbol>,</symbol>\n" +
+                "<identifier>obj3</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>if</keyword>\n" +
+                "<symbol>(</symbol>\n" +
+                "<identifier>myInt</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<integerConstant>10</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>{</symbol>\n" +
+                "<keyword>do</keyword>\n" +
+                "<identifier>myMethod</identifier>\n" +
+                "<symbol>(</symbol>\n" +
+                "<StringConstant>test</StringConstant>\n" +
+                "<symbol>,</symbol>\n" +
+                "<integerConstant>20</integerConstant>\n" +
+                "<symbol>)</symbol>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>let</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>=</symbol>\n" +
+                "<StringConstant>hello</StringConstant>\n" +
+                "<symbol>;</symbol>\n" +
+                "<keyword>return</keyword>\n" +
+                "<identifier>myVar</identifier>\n" +
+                "<symbol>;</symbol>\n" +
+                "<symbol>}</symbol>\n" +
+                "<symbol>}</symbol>\n";
+        assertEquals(expected, parser.compileSubroutineBody());
+    }
 }
