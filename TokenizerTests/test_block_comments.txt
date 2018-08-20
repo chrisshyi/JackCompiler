@@ -1,0 +1,7 @@
+/** here are some API
+comments */
+function myFunc(); // some inline comments
+/*
+some block comments
+*/ let do();
+"mystring" // inline

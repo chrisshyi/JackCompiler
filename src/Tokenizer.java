@@ -23,16 +23,56 @@ public class Tokenizer {
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile))) {
             String line;
             Pattern tokenPattern = Pattern.compile("\".+\"|[\\w_]+|\\d+|[\\{\\}\\(\\)\\[\\]\\.,;\\+\\-*/&|<>=~]");
+            Pattern blockCommentStart = Pattern.compile("/\\*|/\\*\\*");
+            Pattern blockCommentEnd = Pattern.compile("\\*/");
+            Pattern inlineCommentPattern = Pattern.compile("//");
+            int blockCommentStartIndex;
+            int blockCommentEndIndex;
+            int inlineCommentStartIndex;
+            boolean activeBlockComment = false;
             while ((line = reader.readLine()) != null) {
-                Matcher matcher = tokenPattern.matcher(line);
-                while (matcher.find()) {
-                    String match = line.substring(matcher.start(), matcher.end());
-                    if (line.charAt(matcher.start()) == '/' && matcher.start() != line.length() - 1) {
-                        if (line.substring(matcher.start(), matcher.start() + 2).equals("//")) {
-                            break;
+                Matcher tokenMatcher = tokenPattern.matcher(line);
+                Matcher inlineCommentMatcher = inlineCommentPattern.matcher(line);
+                if (inlineCommentMatcher.find()) {
+                    inlineCommentStartIndex = inlineCommentMatcher.start();
+                } else {
+                    inlineCommentStartIndex = line.length();
+                }
+                if (activeBlockComment) { // have met the start of a block comment but haven't seen the end
+                    Matcher blockEndMatcher = blockCommentEnd.matcher(line);
+                    if (blockEndMatcher.find()) {
+                        blockCommentEndIndex = blockEndMatcher.end();
+                        activeBlockComment = false;
+                    } else {
+                        blockCommentEndIndex = line.length();
+                    }
+                    while (tokenMatcher.find()) {
+                        if (tokenMatcher.start() >= blockCommentEndIndex && tokenMatcher.start() < inlineCommentStartIndex) {
+                            tokens.add(line.substring(tokenMatcher.start(), tokenMatcher.end()));
                         }
                     }
-                    tokens.add(match);
+                } else {
+                    Matcher blockStartMatcher = blockCommentStart.matcher(line);
+                    Matcher blockEndMatcher = blockCommentEnd.matcher(line);
+                    if (blockStartMatcher.find()) {
+                        blockCommentStartIndex = blockStartMatcher.start();
+                        activeBlockComment = true;
+                        if (blockEndMatcher.find()) {
+                            blockCommentEndIndex = blockEndMatcher.end();
+                            activeBlockComment = false;
+                        } else {
+                            blockCommentEndIndex = line.length();
+                        }
+                    } else {
+                        blockCommentStartIndex = line.length();
+                        blockCommentEndIndex = 0;
+                    }
+                    while (tokenMatcher.find()) {
+                        if (tokenMatcher.start() < blockCommentStartIndex && tokenMatcher.start() < inlineCommentStartIndex
+                        && tokenMatcher.start() >= blockCommentEndIndex) {
+                            tokens.add(line.substring(tokenMatcher.start(), tokenMatcher.end()));
+                        }
+                    }
                 }
             }
         }
