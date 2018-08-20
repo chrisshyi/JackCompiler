@@ -626,17 +626,18 @@ class ParserTest {
                 "<keyword>function</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>myFunc</identifier>\n" +
-                "<parameterList>\n" +
                 "<symbol>(</symbol>\n" +
+                "<parameterList>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>num1</identifier>\n" +
                 "<symbol>,</symbol>\n" +
                 "<identifier>String</identifier>\n" +
                 "<identifier>str1</identifier>\n" +
-                "<symbol>)</symbol>\n" +
                 "</parameterList>\n" +
+                "<symbol>)</symbol>\n" +
                 "<subroutineBody>\n" +
                 "<symbol>{</symbol>\n" +
+                "<varDec>\n" +
                 "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>obj1</identifier>\n" +
@@ -645,30 +646,67 @@ class ParserTest {
                 "<symbol>,</symbol>\n" +
                 "<identifier>obj3</identifier>\n" +
                 "<symbol>;</symbol>\n" +
+                "</varDec>\n" +
+                "<statements>\n" +
+                "<ifStatement>\n" +
                 "<keyword>if</keyword>\n" +
                 "<symbol>(</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<identifier>myInt</identifier>\n" +
+                "</term>\n" +
                 "<symbol>=</symbol>\n" +
+                "<term>\n" +
                 "<integerConstant>10</integerConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>{</symbol>\n" +
+                "<statements>\n" +
+                "<doStatement>\n" +
                 "<keyword>do</keyword>\n" +
                 "<identifier>myMethod</identifier>\n" +
                 "<symbol>(</symbol>\n" +
+                "<expressionList>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<StringConstant>test</StringConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>,</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<integerConstant>20</integerConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
+                "</expressionList>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>;</symbol>\n" +
+                "</doStatement>\n" +
+                "<letStatement>\n" +
                 "<keyword>let</keyword>\n" +
                 "<identifier>myVar</identifier>\n" +
                 "<symbol>=</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<StringConstant>hello</StringConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>;</symbol>\n" +
+                "</letStatement>\n" +
+                "<returnStatement>\n" +
                 "<keyword>return</keyword>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<identifier>myVar</identifier>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>;</symbol>\n" +
+                "</returnStatement>\n" +
+                "</statements>\n" +
                 "<symbol>}</symbol>\n" +
+                "</ifStatement>\n" +
+                "</statements>\n" +
                 "<symbol>}</symbol>\n" +
                 "</subroutineBody>\n" +
                 "</subroutineDec>\n";
