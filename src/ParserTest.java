@@ -45,12 +45,12 @@ class ParserTest {
     void testParamListOne() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_param_list_one.txt"));
         // tests the declaration of a single variable
-        String expected = "<parameterList>\n" +
-                "<symbol>(</symbol>\n" +
+        String expected = "<symbol>(</symbol>\n" +
+                "<parameterList>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>x</identifier>\n" +
-                "<symbol>)</symbol>\n" +
-                "</parameterList>\n";
+                "</parameterList>\n" +
+                "<symbol>)</symbol>\n";
         assertEquals(expected, parser.compileParamList());
     }
 
@@ -86,7 +86,9 @@ class ParserTest {
     @Test
     void testTermStringConstant() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_term_string_const.txt"));
-        String expected = "<StringConstant>hello world</StringConstant>\n";
+        String expected = "<term>\n" +
+                "<stringConstant>hello world</stringConstant>\n" +
+                "</term>\n";
         assertEquals(expected, parser.compileTerm());
     }
 
@@ -278,14 +280,16 @@ class ParserTest {
     @Test
     void testVarDecMult() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_var_dec_mult.txt"));
-        String expected = "<keyword>var</keyword>\n" +
+        String expected = "<varDec>\n" +
+                "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>obj1</identifier>\n" +
                 "<symbol>,</symbol>\n" +
                 "<identifier>obj2</identifier>\n" +
                 "<symbol>,</symbol>\n" +
                 "<identifier>obj3</identifier>\n" +
-                "<symbol>;</symbol>\n";
+                "<symbol>;</symbol>\n" +
+                "</varDec>\n";
         assertEquals(expected, parser.compileVarDec());
     }
 
@@ -432,15 +436,15 @@ class ParserTest {
                 "<keyword>function</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>myFunc</identifier>\n" +
-                "<parameterList>\n" +
                 "<symbol>(</symbol>\n" +
+                "<parameterList>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>num1</identifier>\n" +
                 "<symbol>,</symbol>\n" +
                 "<identifier>String</identifier>\n" +
                 "<identifier>str1</identifier>\n" +
-                "<symbol>)</symbol>\n" +
                 "</parameterList>\n" +
+                "<symbol>)</symbol>\n" +
                 "<subroutineBody>\n" +
                 "<symbol>{</symbol>\n" +
                 "<keyword>var</keyword>\n" +

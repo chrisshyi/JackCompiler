@@ -26,7 +26,7 @@ public class Parser {
     private final Set<String> binaryOpSet = new HashSet<>(Arrays.asList("+", "-",
             "*", "/", "&", "|", "<", ">", "="));
     private final Pattern intConstPattern = Pattern.compile("\\d+");
-    private final Pattern stringConstPattern = Pattern.compile("\"[\\w ]+\"");
+    private final Pattern stringConstPattern = Pattern.compile("\"[\\w ?]+\"");
     private final Pattern identifierPattern = Pattern.compile("\\D[\\w_]+");
 
     private final String terminalTemplate = "<%1$s>%2$s</%1$s>\n";
@@ -71,12 +71,12 @@ public class Parser {
      */
     String compileParamList() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<parameterList>\n");
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // the opening (
+        sb.append("<parameterList>\n");
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals(")")) { // )
-            sb.append(formatFromTemplate("symbol", nextToken));
             sb.append("</parameterList>\n");
+            sb.append(formatFromTemplate("symbol", nextToken));
             return sb.toString();
         }
         // first variable declaration
@@ -91,8 +91,8 @@ public class Parser {
             sb.append(compileTypeAndVar(varType, variable));
             nextToken = tokenizer.getNextToken();
         }
-        sb.append(formatFromTemplate("symbol", nextToken)); // closing )
         sb.append("</parameterList>\n");
+        sb.append(formatFromTemplate("symbol", nextToken)); // closing )
         return sb.toString();
     }
 
@@ -103,6 +103,24 @@ public class Parser {
      * @return a formatted string with the terminal element type and element substituted in
      */
     private String formatFromTemplate(String terminalType, String element) {
+        if (symbolSet.contains(element)) {
+            switch(element) {
+                case "<":
+                    element = "&lt;";
+                    break;
+                case ">":
+                    element = "&gt;";
+                    break;
+                case "\"":
+                    element = "&quot;";
+                    break;
+                case "&":
+                    element = "&amp;";
+                    break;
+                default:
+                    break;
+            }
+        }
         return String.format(terminalTemplate, terminalType, element);
     }
 
@@ -129,8 +147,10 @@ public class Parser {
      */
     public String compileExpression() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<expression>\n");
         sb.append(compileTerm());
         if (!tokenizer.hasNextToken()) {
+            sb.append("</expression>\n");
             return sb.toString();
         }
         String nextToken = tokenizer.getNextToken();
@@ -140,6 +160,7 @@ public class Parser {
         } else {
             tokenizer.backTrack();
         }
+        sb.append("</expression>\n");
         return sb.toString();
     }
 
@@ -150,13 +171,14 @@ public class Parser {
      */
     public String compileTerm() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<term>\n");
         String nextToken = tokenizer.getNextToken();
         Matcher intConstantMatcher = intConstPattern.matcher(nextToken);
         Matcher strConstantMatcher = stringConstPattern.matcher(nextToken);
         if (intConstantMatcher.find()) { // integer constant
             sb.append(formatFromTemplate("integerConstant", nextToken));
         } else if (strConstantMatcher.find()) { // string constant, need to strip off quotes
-            sb.append(formatFromTemplate("StringConstant", nextToken.replaceAll("\"", "")));
+            sb.append(formatFromTemplate("stringConstant", nextToken.replaceAll("\"", "")));
         } else if (keyWordConstantSet.contains(nextToken)) { // keyword constant
             sb.append(formatFromTemplate("keyword", nextToken));
         } else if (nextToken.equals("(")) { // (expression)
@@ -169,6 +191,7 @@ public class Parser {
         } else { // either just varName, array indexing or subroutine call
             if (!tokenizer.hasNextToken()) {
                 sb.append(formatFromTemplate("identifier", nextToken));
+                sb.append("</term>\n");
                 return sb.toString();
             }
             String nextNextToken = tokenizer.getNextToken();
@@ -187,6 +210,7 @@ public class Parser {
                 tokenizer.backTrack();
             }
         }
+        sb.append("</term>\n");
         return sb.toString();
     }
 
@@ -214,30 +238,36 @@ public class Parser {
      */
     public String compileExpressionList() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<expressionList>\n");
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals(")")) { // empty expression list
             tokenizer.backTrack();
+            sb.append("</expressionList>\n");
             return "";
         }
         tokenizer.backTrack();
         sb.append(compileExpression());
         if (!tokenizer.hasNextToken()) {
+            sb.append("</expressionList>\n");
             return sb.toString();
         }
         nextToken = tokenizer.getNextToken();
         if (!nextToken.equals(",")) {
             tokenizer.backTrack();
+            sb.append("</expressionList>\n");
             return sb.toString();
         }
         while (nextToken.equals(",")) {
             sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileExpression());
             if (!tokenizer.hasNextToken()) {
+                sb.append("</expressionList>\n");
                 return sb.toString();
             }
             nextToken = tokenizer.getNextToken();
         }
         tokenizer.backTrack();
+        sb.append("</expressionList>\n");
         return sb.toString();
     }
 
@@ -247,15 +277,17 @@ public class Parser {
      */
     public String compileLetStatement() {
         StringBuilder sb = new StringBuilder();
-        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken()));
+        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // varName
         String nextToken = tokenizer.getNextToken();
         sb.append(formatFromTemplate("symbol", nextToken));
         if (nextToken.equals("[")) {
             sb.append(compileExpression());
             sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ]
         }
+        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // =
         sb.append(compileExpression());
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
+        sb.append("</letStatement>\n");
         return sb.toString();
     }
 
@@ -272,6 +304,7 @@ public class Parser {
         sb.append(compileStatements());
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // }
         if (!tokenizer.hasNextToken()) {
+            sb.append("</ifStatement>\n");
             return sb.toString();
         }
         String nextToken = tokenizer.getNextToken();
@@ -283,6 +316,7 @@ public class Parser {
         } else {
             tokenizer.backTrack();
         }
+        sb.append("</ifStatement>\n");
         return sb.toString();
     }
 
@@ -298,6 +332,7 @@ public class Parser {
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
         sb.append(compileStatements());
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // }
+        sb.append("</whileStatement>\n");
         return sb.toString();
     }
 
@@ -309,6 +344,7 @@ public class Parser {
         StringBuilder sb = new StringBuilder();
         sb.append(compileSubroutineCall());
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
+        sb.append("</doStatement>\n");
         return sb.toString();
     }
 
@@ -326,6 +362,7 @@ public class Parser {
             sb.append(compileExpression());
             sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
         }
+        sb.append("</returnStatement>\n");
         return sb.toString();
     }
 
@@ -336,13 +373,16 @@ public class Parser {
      */
     public String compileStatements() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<statements>\n");
         String nextToken = tokenizer.getNextToken();
         Set<String> possibleStatements = new HashSet<>(Arrays.asList("let", "if",
                 "while", "do", "return"));
         if (!possibleStatements.contains(nextToken)) {
             tokenizer.backTrack();
+            sb.append("</statements>\n");
             return "";
         }
+        sb.append(String.format("<%sStatement>\n", nextToken));
         sb.append(formatFromTemplate("keyword", nextToken));
         // use reflection to call the appropriate statement compilation method
         String methodName = "compile" + nextToken.substring(0, 1).toUpperCase() + nextToken.substring(1) + "Statement";
@@ -351,8 +391,15 @@ public class Parser {
             while (tokenizer.hasNextToken()) {
                 nextToken = tokenizer.getNextToken();
                 if (possibleStatements.contains(nextToken)) {
-                    tokenizer.backTrack();
-                    sb.append(compileStatements());
+                    sb.append(String.format("<%sStatement>\n", nextToken));
+                    sb.append(formatFromTemplate("keyword", nextToken));
+                    // use reflection to call the appropriate statement compilation method
+                    methodName = "compile" + nextToken.substring(0, 1).toUpperCase() + nextToken.substring(1) + "Statement";
+                    try {
+                        sb.append(this.getClass().getMethod(methodName).invoke(this));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     tokenizer.backTrack();
                     break;
@@ -361,6 +408,7 @@ public class Parser {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        sb.append("</statements>\n");
         return sb.toString();
     }
 
@@ -370,6 +418,7 @@ public class Parser {
      */
     String compileVarDec() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<varDec>\n");
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // var
         String nextToken = tokenizer.getNextToken(); // type
         if (keywordSet.contains(nextToken)) {
@@ -385,6 +434,7 @@ public class Parser {
             nextToken = tokenizer.getNextToken();
         }
         sb.append(formatFromTemplate("symbol", nextToken));
+        sb.append("</varDec>\n");
         return sb.toString();
     }
 
