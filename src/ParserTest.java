@@ -735,6 +735,7 @@ class ParserTest {
                 "<symbol>)</symbol>\n" +
                 "<subroutineBody>\n" +
                 "<symbol>{</symbol>\n" +
+                "<varDec>\n" +
                 "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>obj1</identifier>\n" +
@@ -743,30 +744,67 @@ class ParserTest {
                 "<symbol>,</symbol>\n" +
                 "<identifier>obj3</identifier>\n" +
                 "<symbol>;</symbol>\n" +
+                "</varDec>\n" +
+                "<statements>\n" +
+                "<ifStatement>\n" +
                 "<keyword>if</keyword>\n" +
                 "<symbol>(</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<identifier>myInt</identifier>\n" +
+                "</term>\n" +
                 "<symbol>=</symbol>\n" +
+                "<term>\n" +
                 "<integerConstant>10</integerConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>{</symbol>\n" +
+                "<statements>\n" +
+                "<doStatement>\n" +
                 "<keyword>do</keyword>\n" +
                 "<identifier>myMethod</identifier>\n" +
                 "<symbol>(</symbol>\n" +
+                "<expressionList>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<StringConstant>test</StringConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>,</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<integerConstant>20</integerConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
+                "</expressionList>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>;</symbol>\n" +
+                "</doStatement>\n" +
+                "<letStatement>\n" +
                 "<keyword>let</keyword>\n" +
                 "<identifier>myVar</identifier>\n" +
                 "<symbol>=</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<StringConstant>hello</StringConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>;</symbol>\n" +
+                "</letStatement>\n" +
+                "<returnStatement>\n" +
                 "<keyword>return</keyword>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<identifier>myVar</identifier>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>;</symbol>\n" +
+                "</returnStatement>\n" +
+                "</statements>\n" +
                 "<symbol>}</symbol>\n" +
+                "</ifStatement>\n" +
+                "</statements>\n" +
                 "<symbol>}</symbol>\n" +
                 "</subroutineBody>\n" +
                 "</subroutineDec>\n" +
@@ -802,17 +840,18 @@ class ParserTest {
                 "<keyword>function</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>myFunc</identifier>\n" +
-                "<parameterList>\n" +
                 "<symbol>(</symbol>\n" +
+                "<parameterList>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>num1</identifier>\n" +
                 "<symbol>,</symbol>\n" +
                 "<identifier>String</identifier>\n" +
                 "<identifier>str1</identifier>\n" +
-                "<symbol>)</symbol>\n" +
                 "</parameterList>\n" +
+                "<symbol>)</symbol>\n" +
                 "<subroutineBody>\n" +
                 "<symbol>{</symbol>\n" +
+                "<varDec>\n" +
                 "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>obj1</identifier>\n" +
@@ -821,30 +860,67 @@ class ParserTest {
                 "<symbol>,</symbol>\n" +
                 "<identifier>obj3</identifier>\n" +
                 "<symbol>;</symbol>\n" +
+                "</varDec>\n" +
+                "<statements>\n" +
+                "<ifStatement>\n" +
                 "<keyword>if</keyword>\n" +
                 "<symbol>(</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<identifier>myInt</identifier>\n" +
+                "</term>\n" +
                 "<symbol>=</symbol>\n" +
+                "<term>\n" +
                 "<integerConstant>10</integerConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>{</symbol>\n" +
+                "<statements>\n" +
+                "<doStatement>\n" +
                 "<keyword>do</keyword>\n" +
                 "<identifier>myMethod</identifier>\n" +
                 "<symbol>(</symbol>\n" +
+                "<expressionList>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<StringConstant>test</StringConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>,</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<integerConstant>20</integerConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
+                "</expressionList>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>;</symbol>\n" +
+                "</doStatement>\n" +
+                "<letStatement>\n" +
                 "<keyword>let</keyword>\n" +
                 "<identifier>myVar</identifier>\n" +
                 "<symbol>=</symbol>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<StringConstant>hello</StringConstant>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>;</symbol>\n" +
+                "</letStatement>\n" +
+                "<returnStatement>\n" +
                 "<keyword>return</keyword>\n" +
+                "<expression>\n" +
+                "<term>\n" +
                 "<identifier>myVar</identifier>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>;</symbol>\n" +
+                "</returnStatement>\n" +
+                "</statements>\n" +
                 "<symbol>}</symbol>\n" +
+                "</ifStatement>\n" +
+                "</statements>\n" +
                 "<symbol>}</symbol>\n" +
                 "</subroutineBody>\n" +
                 "</subroutineDec>\n" +
@@ -854,7 +930,7 @@ class ParserTest {
     }
 
     @Test
-    void testClassDecWithSubroutine() throws IOException {
+    void testClassDecNoSubroutine() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_dec_no_subroutine.txt"));
         String expected = "<class>\n" +
                 "<keyword>class</keyword>\n" +
@@ -884,83 +960,177 @@ class ParserTest {
     @Test
     void testNestedExpressions() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_nested_expressions.txt"));
-        String expected = "<keyword>if</keyword>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<identifier>y</identifier>\n" +
-                "<symbol>+</symbol>\n" +
-                "<identifier>size</identifier>\n" +
+        String expected = "<statements>\n" +
+                "<ifStatement>\n" +
+                    "<keyword>if</keyword>\n" +
+                    "<symbol>(</symbol>\n" +
+                    "<expression>\n" +
+                    "<term>\n" +
+                        "<symbol>(</symbol>\n" +
+                        "<expression>\n" +
+                            "<term>\n" +
+                                "<symbol>(</symbol>\n" +
+                                "<expression>\n" +
+                                    "<term>\n" +
+                                    "<identifier>y</identifier>\n" +
+                                    "</term>\n" +
+                                    "<symbol>+</symbol>\n" +
+                                    "<term>\n" +
+                                    "<identifier>size</identifier>\n" +
+                                    "</term>\n" +
+                                "</expression>\n" +
+                                "<symbol>)</symbol>\n" +
+                            "</term>\n" +
+                        "<symbol>&lt;</symbol>\n" +
+                            "<term>\n" +
+                                "<integerConstant>254</integerConstant>\n" +
+                            "</term>\n" +
+                        "</expression>\n" +
+                    "<symbol>)</symbol>\n" +
+                "</term>\n" +
+                "<symbol>&amp;</symbol>\n" +
+                "<term>\n" +
+                    "<symbol>(</symbol>\n" +
+                    "<expression>\n" +
+                        "<term>\n" +
+                            "<symbol>(</symbol>\n" +
+                            "<expression>\n" +
+                                "<term>\n" +
+                                    "<identifier>x</identifier>\n" +
+                                "</term>\n" +
+                                "<symbol>+</symbol>\n" +
+                                "<term>\n" +
+                                    "<identifier>size</identifier>\n" +
+                                "</term>\n" +
+                            "</expression>\n" +
+                            "<symbol>)</symbol>\n" +
+                        "</term>\n" +
+                    "<symbol>&lt;</symbol>\n" +
+                    "<term>\n" +
+                        "<integerConstant>510</integerConstant>\n" +
+                    "</term>\n" +
+                "</expression>\n" +
                 "<symbol>)</symbol>\n" +
-                "<symbol><</symbol>\n" +
-                "<integerConstant>254</integerConstant>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>&</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<identifier>x</identifier>\n" +
-                "<symbol>+</symbol>\n" +
-                "<identifier>size</identifier>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol><</symbol>\n" +
-                "<integerConstant>510</integerConstant>\n" +
-                "<symbol>)</symbol>\n" +
+                "</term>\n" +
+                "</expression>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>{</symbol>\n" +
-                "<keyword>do</keyword>\n" +
-                "<identifier>erase</identifier>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>;</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "<statements>\n" +
+                    "<doStatement>\n" +
+                        "<keyword>do</keyword>\n" +
+                        "<identifier>erase</identifier>\n" +
+                        "<symbol>(</symbol>\n" +
+                            "<expressionList>\n" +
+                            "</expressionList>\n" +
+                        "<symbol>)</symbol>\n" +
+                        "<symbol>;</symbol>\n" +
+                    "</doStatement>\n" +
+                "</statements>\n" +
+                "<symbol>}</symbol>\n" +
+                "</ifStatement>\n" +
+                "</statements>\n";
         assertEquals(expected, parser.compileStatements());
     }
 
     @Test
     void testNestedExpression2() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_nested_expressions_2.txt"));
-        String expected = "<keyword>if</keyword>\n" +
+        String expected = "<statements>\n" +
+                "<ifStatement>\n" +
+                "<keyword>if</keyword>\n" +
                 "<symbol>(</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<identifier>y</identifier>\n" +
-                "<symbol>+</symbol>\n" +
-                "<identifier>size</identifier>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol><</symbol>\n" +
-                "<integerConstant>254</integerConstant>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>&</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>(</symbol>\n" +
-                "<identifier>x</identifier>\n" +
-                "<symbol>+</symbol>\n" +
-                "<identifier>size</identifier>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>/</symbol>\n" +
-                "<integerConstant>5</integerConstant>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol><</symbol>\n" +
-                "<integerConstant>510</integerConstant>\n" +
-                "<symbol>)</symbol>\n" +
+                "<expression>\n" +
+                    "<term>\n" +
+                    "<symbol>(</symbol>\n" +
+                    "<expression>\n" +
+                        "<term>\n" +
+                        "<symbol>(</symbol>\n" +
+                        "<expression>\n" +
+                            "<term>\n" +
+                            "<identifier>y</identifier>\n" +
+                            "</term>\n" +
+                            "<symbol>+</symbol>\n" +
+                            "<term>\n" +
+                            "<identifier>size</identifier>\n" +
+                            "</term>\n" +
+                        "</expression>\n" +
+                        "<symbol>)</symbol>\n" +
+                        "</term>\n" +
+                    "<symbol>&lt;</symbol>\n" +
+                        "<term>\n" +
+                        "<integerConstant>254</integerConstant>\n" +
+                        "</term>\n" +
+                    "</expression>\n" +
+                    "<symbol>)</symbol>\n" +
+                    "</term>\n" +
+                    "<symbol>&amp;</symbol>\n" +
+                    "<term>\n" +
+                        "<symbol>(</symbol>\n" +
+                        "<expression>\n" +
+                        "<term>\n" +
+                            "<symbol>(</symbol>\n" +
+                            "<expression>\n" +
+                                "<term>\n" +
+                                    "<symbol>(</symbol>\n" +
+                                        "<expression>\n" +
+                                            "<term>\n" +
+                                                "<identifier>x</identifier>\n" +
+                                            "</term>\n" +
+                                            "<symbol>+</symbol>\n" +
+                                            "<term>\n" +
+                                                "<identifier>size</identifier>\n" +
+                                            "</term>\n" +
+                                        "</expression>\n" +
+                                    "<symbol>)</symbol>\n" +
+                                "</term>\n" +
+                                "<symbol>/</symbol>\n" +
+                                "<term>\n" +
+                                    "<integerConstant>5</integerConstant>\n" +
+                                "</term>\n" +
+                            "</expression>\n" +
+                            "<symbol>)</symbol>\n" +
+                        "</term>\n" +
+                        "<symbol>&lt;</symbol>\n" +
+                        "<term>\n" +
+                        "<integerConstant>510</integerConstant>\n" +
+                        "</term>\n" +
+                        "</expression>\n" +
+                        "<symbol>)</symbol>\n" +
+                    "</term>\n" +
+                "</expression>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>{</symbol>\n" +
+                "<statements>\n" +
+                "<doStatement>\n" +
                 "<keyword>do</keyword>\n" +
                 "<identifier>erase</identifier>\n" +
                 "<symbol>(</symbol>\n" +
+                "<expressionList>\n" +
+                "</expressionList>\n" +
                 "<symbol>)</symbol>\n" +
                 "<symbol>;</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "</doStatement>\n" +
+                "</statements>\n" +
+                "<symbol>}</symbol>\n" +
+                "</ifStatement>\n" +
+                "</statements>\n";
+        assertEquals(expected, parser.compileStatements());
     }
 
     @Test
     void testEmptyParamsList() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_empty_params_list.txt"));
-        String expected = "<parameterList>\n" +
-                "<symbol>(</symbol>\n" +
-                "<symbol>)</symbol>\n" +
-                "</parameterList>\n";
+        String expected = "<symbol>(</symbol>\n" +
+                "<parameterList>\n" +
+                "</parameterList>\n" +
+                "<symbol>)</symbol>\n";
         assertEquals(expected, parser.compileParamList());
+    }
+
+    @Test
+    void testEmptyExpressionList() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_empty_expression_list.txt"));
+        String expected = "<expressionList>\n" + "</expressionList>\n";
+        assertEquals(expected, parser.compileExpressionList());
     }
 }
