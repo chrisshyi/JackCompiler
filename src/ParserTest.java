@@ -85,10 +85,10 @@ class ParserTest {
     }
 
     @Test
-    void testTermStringConstant() throws IOException {
+    void testTermstringConstant() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_term_string_const.txt"));
         String expected = "<term>\n" +
-                "<StringConstant>hello world</StringConstant>\n" +
+                "<stringConstant>hello world</stringConstant>\n" +
                 "</term>\n";
         assertEquals(expected, parser.compileTerm());
     }
@@ -146,7 +146,7 @@ class ParserTest {
                     "<expressionList>\n" +
                         "<expression>\n" +
                             "<term>\n" +
-                                "<StringConstant>hello</StringConstant>\n" +
+                                "<stringConstant>hello</stringConstant>\n" +
                             "</term>\n" +
                         "</expression>\n" +
                         "<symbol>,</symbol>\n" +
@@ -401,7 +401,7 @@ class ParserTest {
                         "<expressionList>\n" +
                             "<expression>\n" +
                             "<term>\n" +
-                                "<StringConstant>test</StringConstant>\n" +
+                                "<stringConstant>test</stringConstant>\n" +
                             "</term>\n" +
                             "</expression>\n" +
                             "<symbol>,</symbol>\n" +
@@ -420,7 +420,7 @@ class ParserTest {
                     "<symbol>=</symbol>\n" +
                     "<expression>\n" +
                     "<term>\n" +
-                        "<StringConstant>hello</StringConstant>\n" +
+                        "<stringConstant>hello</stringConstant>\n" +
                     "</term>\n" +
                     "</expression>\n" +
                     "<symbol>;</symbol>\n" +
@@ -497,7 +497,7 @@ class ParserTest {
                             "<expressionList>\n" +
                                 "<expression>\n" +
                                 "<term>\n" +
-                                    "<StringConstant>test</StringConstant>\n" +
+                                    "<stringConstant>test</stringConstant>\n" +
                                 "</term>\n" +
                                 "</expression>\n" +
                             "<symbol>,</symbol>\n" +
@@ -516,7 +516,7 @@ class ParserTest {
                         "<symbol>=</symbol>\n" +
                         "<expression>\n" +
                         "<term>\n" +
-                            "<StringConstant>hello</StringConstant>\n" +
+                            "<stringConstant>hello</stringConstant>\n" +
                         "</term>\n" +
                         "</expression>\n" +
                         "<symbol>;</symbol>\n" +
@@ -577,7 +577,7 @@ class ParserTest {
                 "<expressionList>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>test</StringConstant>\n" +
+                "<stringConstant>test</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>,</symbol>\n" +
@@ -596,7 +596,7 @@ class ParserTest {
                 "<symbol>=</symbol>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>hello</StringConstant>\n" +
+                "<stringConstant>hello</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>;</symbol>\n" +
@@ -670,7 +670,7 @@ class ParserTest {
                 "<expressionList>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>test</StringConstant>\n" +
+                "<stringConstant>test</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>,</symbol>\n" +
@@ -689,7 +689,7 @@ class ParserTest {
                 "<symbol>=</symbol>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>hello</StringConstant>\n" +
+                "<stringConstant>hello</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>;</symbol>\n" +
@@ -768,7 +768,7 @@ class ParserTest {
                 "<expressionList>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>test</StringConstant>\n" +
+                "<stringConstant>test</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>,</symbol>\n" +
@@ -787,7 +787,7 @@ class ParserTest {
                 "<symbol>=</symbol>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>hello</StringConstant>\n" +
+                "<stringConstant>hello</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>;</symbol>\n" +
@@ -884,7 +884,7 @@ class ParserTest {
                 "<expressionList>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>test</StringConstant>\n" +
+                "<stringConstant>test</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>,</symbol>\n" +
@@ -903,7 +903,7 @@ class ParserTest {
                 "<symbol>=</symbol>\n" +
                 "<expression>\n" +
                 "<term>\n" +
-                "<StringConstant>hello</StringConstant>\n" +
+                "<stringConstant>hello</stringConstant>\n" +
                 "</term>\n" +
                 "</expression>\n" +
                 "<symbol>;</symbol>\n" +
@@ -1132,5 +1132,14 @@ class ParserTest {
         this.parser = new Parser(new File("ParserTests/test_empty_expression_list.txt"));
         String expected = "<expressionList>\n" + "</expressionList>\n";
         assertEquals(expected, parser.compileExpressionList());
+    }
+
+    @Test
+    void testStringConstantWithSymbols1() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_string_const_symbol_1.txt"));
+        String expected = "<term>\n" +
+                "<stringConstant>ENTER YOUR NAME: </stringConstant>\n" +
+                "</term>\n";
+        assertEquals(expected, parser.compileTerm());
     }
 }

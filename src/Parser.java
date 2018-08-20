@@ -26,7 +26,7 @@ public class Parser {
     private final Set<String> binaryOpSet = new HashSet<>(Arrays.asList("+", "-",
             "*", "/", "&", "|", "<", ">", "="));
     private final Pattern intConstPattern = Pattern.compile("\\d+");
-    private final Pattern stringConstPattern = Pattern.compile("\"[\\w ?]+\"");
+    private final Pattern stringConstPattern = Pattern.compile("\".+\"");
     private final Pattern identifierPattern = Pattern.compile("\\D[\\w_]+");
 
     private final String terminalTemplate = "<%1$s>%2$s</%1$s>\n";
@@ -178,7 +178,7 @@ public class Parser {
         if (intConstantMatcher.find()) { // integer constant
             sb.append(formatFromTemplate("integerConstant", nextToken));
         } else if (strConstantMatcher.find()) { // string constant, need to strip off quotes
-            sb.append(formatFromTemplate("StringConstant", nextToken.replaceAll("\"", "")));
+            sb.append(formatFromTemplate("stringConstant", nextToken.replaceAll("\"", "")));
         } else if (keyWordConstantSet.contains(nextToken)) { // keyword constant
             sb.append(formatFromTemplate("keyword", nextToken));
         } else if (nextToken.equals("(")) { // (expression)
