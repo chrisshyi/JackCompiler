@@ -178,7 +178,7 @@ public class Parser {
         if (intConstantMatcher.find()) { // integer constant
             sb.append(formatFromTemplate("integerConstant", nextToken));
         } else if (strConstantMatcher.find()) { // string constant, need to strip off quotes
-            sb.append(formatFromTemplate("stringConstant", nextToken.replaceAll("\"", "")));
+            sb.append(formatFromTemplate("StringConstant", nextToken.replaceAll("\"", "")));
         } else if (keyWordConstantSet.contains(nextToken)) { // keyword constant
             sb.append(formatFromTemplate("keyword", nextToken));
         } else if (nextToken.equals("(")) { // (expression)
@@ -243,7 +243,7 @@ public class Parser {
         if (nextToken.equals(")")) { // empty expression list
             tokenizer.backTrack();
             sb.append("</expressionList>\n");
-            return "";
+            return sb.toString();
         }
         tokenizer.backTrack();
         sb.append(compileExpression());
@@ -279,12 +279,13 @@ public class Parser {
         StringBuilder sb = new StringBuilder();
         sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // varName
         String nextToken = tokenizer.getNextToken();
-        sb.append(formatFromTemplate("symbol", nextToken));
         if (nextToken.equals("[")) {
+            sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileExpression());
             sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ]
+            nextToken = tokenizer.getNextToken();
         }
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // =
+        sb.append(formatFromTemplate("symbol", nextToken)); // =
         sb.append(compileExpression());
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
         sb.append("</letStatement>\n");
