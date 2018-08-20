@@ -1,0 +1,13 @@
+/**
+A class that calculates
+*/
+class MyClass {
+    field int myVar; // var dec
+    /**
+    A function def
+    */
+    function myFunc(int x) {
+        /* does something */
+        do something(); // some inline comments
+    }
+}

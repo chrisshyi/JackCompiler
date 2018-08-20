@@ -73,6 +73,19 @@ class TokenizerTest {
             assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
         }
         assertFalse(tokenizer.hasNextToken());
+    }
 
+    @Test
+    void testBlockComments2() throws IOException {
+        File inputFile = new File("TokenizerTests/test_block_comments_2.txt");
+        Tokenizer tokenizer = new Tokenizer(inputFile);
+        List<String> expectedTokens = Arrays.asList("class", "MyClass", "{",
+            "field", "int", "myVar", ";", "function", "myFunc", "(", "int", "x", ")",
+            "{", "do", "something", "(", ")", ";", "}", "}");
+        for (int i = 0; i < expectedTokens.size(); i++) {
+            assertTrue(tokenizer.hasNextToken());
+            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+        }
+        assertFalse(tokenizer.hasNextToken());
     }
 }
