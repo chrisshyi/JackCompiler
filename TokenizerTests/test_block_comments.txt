@@ -4,4 +4,4 @@ function myFunc(); // some inline comments
 /*
 some block comments
 */ let do();
-"mystring" // inline
+"mystring str" // inline

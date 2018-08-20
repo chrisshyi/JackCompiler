@@ -67,7 +67,7 @@ class TokenizerTest {
         File inputFile = new File("TokenizerTests/test_block_comments.txt");
         Tokenizer tokenizer = new Tokenizer(inputFile);
         List<String> expectedTokens = Arrays.asList("function", "myFunc", "("
-                , ")", ";", "let", "do", "(", ")", ";", "\"mystring\"");
+                , ")", ";", "let", "do", "(", ")", ";", "\"mystring str\"");
         for (int i = 0; i < expectedTokens.size(); i++) {
             assertTrue(tokenizer.hasNextToken());
             assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
