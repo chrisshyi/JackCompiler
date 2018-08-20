@@ -15,10 +15,12 @@ class ParserTest {
     void testClassVarDecOneVar() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_var_dec_one.txt"));
         // tests the declaration of a single variable
-        String expected = "<keyword>field</keyword>\n" +
+        String expected = "<classVarDec>\n" +
+                "<keyword>field</keyword>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>myInt</identifier>\n" +
-                "<symbol>;</symbol>\n";
+                "<symbol>;</symbol>\n" +
+                "</classVarDec>\n";
         assertEquals(expected, parser.compileClassVarDec());
     }
 
@@ -26,14 +28,16 @@ class ParserTest {
     void testClassVarDecMultiple() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_var_dec_mult.txt"));
         // tests the declaration of a single variable
-        String expected = "<keyword>static</keyword>\n" +
+        String expected = "<classVarDec>\n" +
+                "<keyword>static</keyword>\n" +
                 "<identifier>String</identifier>\n" +
                 "<identifier>myStr1</identifier>\n" +
                 "<symbol>,</symbol>\n" +
                 "<identifier>myStr2</identifier>\n" +
                 "<symbol>,</symbol>\n" +
                 "<identifier>myStr3</identifier>\n" +
-                "<symbol>;</symbol>\n";
+                "<symbol>;</symbol>\n" +
+                "</classVarDec>\n";
         assertEquals(expected, parser.compileClassVarDec());
     }
 
@@ -41,10 +45,12 @@ class ParserTest {
     void testParamListOne() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_param_list_one.txt"));
         // tests the declaration of a single variable
-        String expected = "<symbol>(</symbol>\n" +
+        String expected = "<parameterList>\n" +
+                "<symbol>(</symbol>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>x</identifier>\n" +
-                "<symbol>)</symbol>\n";
+                "<symbol>)</symbol>\n" +
+                "</parameterList>\n";
         assertEquals(expected, parser.compileParamList());
     }
 
@@ -52,7 +58,8 @@ class ParserTest {
     void testParamListMultiple() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_param_list_mult.txt"));
         // tests the declaration of a single variable
-        String expected = "<symbol>(</symbol>\n" +
+        String expected = "<parameterList>\n" +
+                "<symbol>(</symbol>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>x</identifier>\n" +
                 "<symbol>,</symbol>\n" +
@@ -64,7 +71,8 @@ class ParserTest {
                 "<symbol>,</symbol>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>myInt</identifier>\n" +
-                "<symbol>)</symbol>\n";
+                "<symbol>)</symbol>\n" +
+                "</parameterList>\n";
         assertEquals(expected, parser.compileParamList());
     }
 
@@ -284,7 +292,8 @@ class ParserTest {
     @Test
     void testSubroutineBodyNoVarDec() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_subroutine_body_no_var_dec.txt"));
-        String expected = "<symbol>{</symbol>\n" +
+        String expected = "<subroutineBody>\n" +
+                "<symbol>{</symbol>\n" +
                 "<keyword>if</keyword>\n" +
                 "<symbol>(</symbol>\n" +
                 "<identifier>myInt</identifier>\n" +
@@ -309,14 +318,16 @@ class ParserTest {
                 "<identifier>myVar</identifier>\n" +
                 "<symbol>;</symbol>\n" +
                 "<symbol>}</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "<symbol>}</symbol>\n" +
+                "</subroutineBody>\n";
         assertEquals(expected, parser.compileSubroutineBody());
     }
 
     @Test
     void testSubroutineBodyWithVarDec() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_subroutine_body_with_var_dec.txt"));
-        String expected = "<symbol>{</symbol>\n" +
+        String expected = "<subroutineBody>\n" +
+                "<symbol>{</symbol>\n" +
                 "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>obj1</identifier>\n" +
@@ -349,16 +360,19 @@ class ParserTest {
                 "<identifier>myVar</identifier>\n" +
                 "<symbol>;</symbol>\n" +
                 "<symbol>}</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "<symbol>}</symbol>\n" +
+                "</subroutineBody>\n";
         assertEquals(expected, parser.compileSubroutineBody());
     }
 
     @Test
     void testSubroutineDec() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_subroutine_dec.txt"));
-        String expected = "<keyword>function</keyword>\n" +
+        String expected = "<subroutineDec>\n" +
+                "<keyword>function</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>myFunc</identifier>\n" +
+                "<parameterList>\n" +
                 "<symbol>(</symbol>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>num1</identifier>\n" +
@@ -366,6 +380,8 @@ class ParserTest {
                 "<identifier>String</identifier>\n" +
                 "<identifier>str1</identifier>\n" +
                 "<symbol>)</symbol>\n" +
+                "</parameterList>\n" +
+                "<subroutineBody>\n" +
                 "<symbol>{</symbol>\n" +
                 "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
@@ -399,19 +415,24 @@ class ParserTest {
                 "<identifier>myVar</identifier>\n" +
                 "<symbol>;</symbol>\n" +
                 "<symbol>}</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "<symbol>}</symbol>\n" +
+                "</subroutineBody>\n" +
+                "</subroutineDec>\n";
         assertEquals(expected, parser.compileSubroutineDec());
     }
 
     @Test
     void testClassDecNoClassVar() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_dec_no_class_var.txt"));
-        String expected = "<keyword>class</keyword>\n" +
+        String expected = "<class>\n" +
+                "<keyword>class</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<symbol>{</symbol>\n" +
+                "<subroutineDec>\n" +
                 "<keyword>function</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>myFunc</identifier>\n" +
+                "<parameterList>\n" +
                 "<symbol>(</symbol>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>num1</identifier>\n" +
@@ -419,6 +440,8 @@ class ParserTest {
                 "<identifier>String</identifier>\n" +
                 "<identifier>str1</identifier>\n" +
                 "<symbol>)</symbol>\n" +
+                "</parameterList>\n" +
+                "<subroutineBody>\n" +
                 "<symbol>{</symbol>\n" +
                 "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
@@ -453,16 +476,21 @@ class ParserTest {
                 "<symbol>;</symbol>\n" +
                 "<symbol>}</symbol>\n" +
                 "<symbol>}</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "</subroutineBody>\n" +
+                "</subroutineDec>\n" +
+                "<symbol>}</symbol>\n" +
+                "</class>\n";
         assertEquals(expected, parser.compileClass());
     }
 
     @Test
     void testClassDecWithClassVar() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_dec_with_class_var.txt"));
-        String expected = "<keyword>class</keyword>\n" +
+        String expected = "<class>\n" +
+                "<keyword>class</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<symbol>{</symbol>\n" +
+                "<classVarDec>\n" +
                 "<keyword>static</keyword>\n" +
                 "<identifier>String</identifier>\n" +
                 "<identifier>myStr1</identifier>\n" +
@@ -471,13 +499,18 @@ class ParserTest {
                 "<symbol>,</symbol>\n" +
                 "<identifier>myStr3</identifier>\n" +
                 "<symbol>;</symbol>\n" +
+                "</classVarDec>\n" +
+                "<classVarDec>\n" +
                 "<keyword>field</keyword>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>myInt</identifier>\n" +
                 "<symbol>;</symbol>\n" +
+                "</classVarDec>\n" +
+                "<subroutineDec>\n" +
                 "<keyword>function</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<identifier>myFunc</identifier>\n" +
+                "<parameterList>\n" +
                 "<symbol>(</symbol>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>num1</identifier>\n" +
@@ -485,6 +518,8 @@ class ParserTest {
                 "<identifier>String</identifier>\n" +
                 "<identifier>str1</identifier>\n" +
                 "<symbol>)</symbol>\n" +
+                "</parameterList>\n" +
+                "<subroutineBody>\n" +
                 "<symbol>{</symbol>\n" +
                 "<keyword>var</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
@@ -519,16 +554,21 @@ class ParserTest {
                 "<symbol>;</symbol>\n" +
                 "<symbol>}</symbol>\n" +
                 "<symbol>}</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "</subroutineBody>\n" +
+                "</subroutineDec>\n" +
+                "<symbol>}</symbol>\n" +
+                "</class>\n";
         assertEquals(expected, parser.compileClass());
     }
 
     @Test
     void testClassDecWithSubroutine() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_dec_no_subroutine.txt"));
-        String expected = "<keyword>class</keyword>\n" +
+        String expected = "<class>\n" +
+                "<keyword>class</keyword>\n" +
                 "<identifier>MyClass</identifier>\n" +
                 "<symbol>{</symbol>\n" +
+                "<classVarDec>\n" +
                 "<keyword>static</keyword>\n" +
                 "<identifier>String</identifier>\n" +
                 "<identifier>myStr1</identifier>\n" +
@@ -537,11 +577,15 @@ class ParserTest {
                 "<symbol>,</symbol>\n" +
                 "<identifier>myStr3</identifier>\n" +
                 "<symbol>;</symbol>\n" +
+                "</classVarDec>\n" +
+                "<classVarDec>\n" +
                 "<keyword>field</keyword>\n" +
                 "<keyword>int</keyword>\n" +
                 "<identifier>myInt</identifier>\n" +
                 "<symbol>;</symbol>\n" +
-                "<symbol>}</symbol>\n";
+                "</classVarDec>\n" +
+                "<symbol>}</symbol>\n" +
+                "</class>\n";
         assertEquals(expected, parser.compileClass());
     }
 
@@ -616,5 +660,15 @@ class ParserTest {
                 "<symbol>)</symbol>\n" +
                 "<symbol>;</symbol>\n" +
                 "<symbol>}</symbol>\n";
+    }
+
+    @Test
+    void testEmptyParamsList() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_empty_params_list.txt"));
+        String expected = "<parameterList>\n" +
+                "<symbol>(</symbol>\n" +
+                "<symbol>)</symbol>\n" +
+                "</parameterList>\n";
+        assertEquals(expected, parser.compileParamList());
     }
 }

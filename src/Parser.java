@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 public class Parser {
 
     private Tokenizer tokenizer;
+    private String outputFilePath;
     // define Sets and Patterns for matching terminal elements
     private final Set<String> keywordSet = new HashSet<>(Arrays.asList("class",
             "constructor", "function", "method", "field", "static",
@@ -32,11 +33,13 @@ public class Parser {
 
     public Parser(File inputFile) throws IOException {
         this.tokenizer = new Tokenizer(inputFile);
+        this.outputFilePath = extractFileNameWithoutExtension(inputFile.toString()) + ".xml";
     }
 
-    public void parse(File outputFile) throws IOException {
+    public void parse() throws IOException {
+        File outputFile = new File(this.outputFilePath);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-
+            writer.write(compileClass());
         }
     }
 
@@ -46,6 +49,7 @@ public class Parser {
      */
     String compileClassVarDec() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<classVarDec>\n");
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "static" or "field"
         String varType = tokenizer.getNextToken(); // type
         String variable = tokenizer.getNextToken();
@@ -57,6 +61,7 @@ public class Parser {
             nextToken = tokenizer.getNextToken();
         }
         sb.append(formatFromTemplate("symbol", nextToken));
+        sb.append("</classVarDec>\n");
         return sb.toString();
     }
 
@@ -66,12 +71,19 @@ public class Parser {
      */
     String compileParamList() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<parameterList>\n");
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // the opening (
+        String nextToken = tokenizer.getNextToken();
+        if (nextToken.equals(")")) { // )
+            sb.append(formatFromTemplate("symbol", nextToken));
+            sb.append("</parameterList>\n");
+            return sb.toString();
+        }
         // first variable declaration
-        String varType = tokenizer.getNextToken();
+        String varType = nextToken;
         String variable = tokenizer.getNextToken();
         sb.append(compileTypeAndVar(varType, variable));
-        String nextToken = tokenizer.getNextToken();
+        nextToken = tokenizer.getNextToken();
         while (nextToken.equals(",")) {
             sb.append(formatFromTemplate("symbol", nextToken)); // the comma
             varType = tokenizer.getNextToken();
@@ -80,6 +92,7 @@ public class Parser {
             nextToken = tokenizer.getNextToken();
         }
         sb.append(formatFromTemplate("symbol", nextToken)); // closing )
+        sb.append("</parameterList>\n");
         return sb.toString();
     }
 
@@ -381,6 +394,7 @@ public class Parser {
      */
     String compileSubroutineBody() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<subroutineBody>\n");
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals("var")) {
@@ -391,6 +405,7 @@ public class Parser {
         tokenizer.backTrack();
         sb.append(compileStatements());
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+        sb.append("</subroutineBody>\n");
         return sb.toString();
     }
 
@@ -400,6 +415,7 @@ public class Parser {
      */
     String compileSubroutineDec() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<subroutineDec>\n");
         // "constructor" or "function" or "method"
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken()));
         String nextToken = tokenizer.getNextToken(); // return type
@@ -411,6 +427,7 @@ public class Parser {
         sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // subroutine name
         sb.append(compileParamList());
         sb.append(compileSubroutineBody());
+        sb.append("</subroutineDec>\n");
         return sb.toString();
     }
 
@@ -420,6 +437,7 @@ public class Parser {
      */
     String compileClass() {
         StringBuilder sb = new StringBuilder();
+        sb.append("<class>\n");
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "class"
         sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // className
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
@@ -436,6 +454,17 @@ public class Parser {
             nextToken = tokenizer.getNextToken();
         }
         sb.append(formatFromTemplate("symbol", nextToken)); // }
+        sb.append("</class>\n");
         return sb.toString();
+    }
+
+    /**
+     * Extracts the file path of a file without the extension
+     * @param filePath the file path
+     * @return the file path of a file without the extension
+     */
+    private String extractFileNameWithoutExtension(String filePath) {
+        int indexOfPeriod = filePath.lastIndexOf(".");
+        return filePath.substring(0, indexOfPeriod);
     }
 }
