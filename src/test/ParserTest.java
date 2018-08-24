@@ -1,3 +1,7 @@
+package test;
+
+import main.Parser;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +25,7 @@ class ParserTest {
                 "<identifier>myInt</identifier>\n" +
                 "<symbol>;</symbol>\n" +
                 "</classVarDec>\n";
-        assertEquals(expected, parser.compileClassVarDec());
+        Assertions.assertEquals(expected, parser.compileClassVarDec());
     }
 
     @Test
@@ -38,7 +42,7 @@ class ParserTest {
                 "<identifier>myStr3</identifier>\n" +
                 "<symbol>;</symbol>\n" +
                 "</classVarDec>\n";
-        assertEquals(expected, parser.compileClassVarDec());
+        Assertions.assertEquals(expected, parser.compileClassVarDec());
     }
 
     @Test
@@ -51,7 +55,7 @@ class ParserTest {
                 "<identifier>x</identifier>\n" +
                 "</parameterList>\n" +
                 "<symbol>)</symbol>\n";
-        assertEquals(expected, parser.compileParamList());
+        Assertions.assertEquals(expected, parser.compileParamList());
     }
 
     @Test
@@ -72,7 +76,7 @@ class ParserTest {
                 "<identifier>myInt</identifier>\n" +
                 "</parameterList>\n" +
                 "<symbol>)</symbol>\n";
-        assertEquals(expected, parser.compileParamList());
+        Assertions.assertEquals(expected, parser.compileParamList());
     }
 
     @Test
@@ -81,7 +85,7 @@ class ParserTest {
         String expected = "<term>\n" +
                 "<integerConstant>127374</integerConstant>\n" +
                 "</term>\n";
-        assertEquals(expected, parser.compileTerm());
+        Assertions.assertEquals(expected, parser.compileTerm());
     }
 
     @Test
@@ -90,7 +94,7 @@ class ParserTest {
         String expected = "<term>\n" +
                 "<stringConstant>hello world</stringConstant>\n" +
                 "</term>\n";
-        assertEquals(expected, parser.compileTerm());
+        Assertions.assertEquals(expected, parser.compileTerm());
     }
 
     @Test
@@ -102,7 +106,7 @@ class ParserTest {
                     "<identifier>myBool</identifier>\n" +
                 "</term>\n" +
                 "</term>\n";
-        assertEquals(expected, parser.compileTerm());
+        Assertions.assertEquals(expected, parser.compileTerm());
     }
 
     @Test
@@ -120,7 +124,7 @@ class ParserTest {
                 "<symbol>]</symbol>\n" +
                 "</term>\n" +
                 "</expression>\n";
-        assertEquals(expected, parser.compileExpression());
+        Assertions.assertEquals(expected, parser.compileExpression());
     }
 
     @Test
@@ -159,7 +163,7 @@ class ParserTest {
                     "<symbol>)</symbol>\n" +
                 "</term>\n" +
                 "</expression>\n";
-        assertEquals(expected, parser.compileExpression());
+        Assertions.assertEquals(expected, parser.compileExpression());
     }
 
     @Test
@@ -208,7 +212,7 @@ class ParserTest {
                     "</term>\n" +
                 "</expression>\n" +
                 "</expressionList>\n";
-        assertEquals(expected, parser.compileExpressionList());
+        Assertions.assertEquals(expected, parser.compileExpressionList());
     }
 
     @Test
@@ -232,7 +236,7 @@ class ParserTest {
                 "</expression>\n" +
                 "<symbol>;</symbol>\n" +
                 "</returnStatement>\n";
-        assertEquals(expected, parser.compileReturnStatement());
+        Assertions.assertEquals(expected, parser.compileReturnStatement());
     }
 
     @Test
@@ -251,7 +255,7 @@ class ParserTest {
                 "</expression>\n" +
                 "<symbol>;</symbol>\n" +
                 "</letStatement>\n";
-        assertEquals(expected, parser.compileLetStatement());
+        Assertions.assertEquals(expected, parser.compileLetStatement());
     }
 
     @Test
@@ -277,7 +281,7 @@ class ParserTest {
                 "</expression>\n" +
                 "<symbol>;</symbol>\n" +
                 "</letStatement>\n";
-        assertEquals(expected, parser.compileLetStatement());
+        Assertions.assertEquals(expected, parser.compileLetStatement());
     }
 
     @Test
@@ -312,7 +316,7 @@ class ParserTest {
                 "</statements>\n" +
                 "<symbol>}</symbol>\n" +
                 "</ifStatement>\n";
-        assertEquals(expected, parser.compileIfStatement());
+        Assertions.assertEquals(expected, parser.compileIfStatement());
     }
 
     @Test
@@ -372,7 +376,7 @@ class ParserTest {
                 "</statements>\n" +
                 "<symbol>}</symbol>\n" +
                 "</ifStatement>\n";
-        assertEquals(expected, parser.compileIfStatement());
+        Assertions.assertEquals(expected, parser.compileIfStatement());
     }
 
     @Test
@@ -438,7 +442,7 @@ class ParserTest {
                 "<symbol>}</symbol>\n" +
                 "</ifStatement>\n" +
                 "</statements>\n";
-                assertEquals(expected, parser.compileStatements());
+                Assertions.assertEquals(expected, parser.compileStatements());
     }
 
     @Test
@@ -450,7 +454,7 @@ class ParserTest {
                 "<identifier>myInt</identifier>\n" +
                 "<symbol>;</symbol>\n" +
                 "</varDec>\n";
-        assertEquals(expected, parser.compileVarDec());
+        Assertions.assertEquals(expected, parser.compileVarDec());
     }
 
     @Test
@@ -466,7 +470,7 @@ class ParserTest {
                 "<identifier>obj3</identifier>\n" +
                 "<symbol>;</symbol>\n" +
                 "</varDec>\n";
-        assertEquals(expected, parser.compileVarDec());
+        Assertions.assertEquals(expected, parser.compileVarDec());
     }
 
     @Test
@@ -536,7 +540,7 @@ class ParserTest {
                 "</statements>\n" +
                 "<symbol>}</symbol>\n" +
                 "</subroutineBody>\n";
-        assertEquals(expected, parser.compileSubroutineBody());
+        Assertions.assertEquals(expected, parser.compileSubroutineBody());
     }
 
     @Test
@@ -616,7 +620,7 @@ class ParserTest {
                 "</statements>\n" +
                 "<symbol>}</symbol>\n" +
                 "</subroutineBody>\n";
-        assertEquals(expected, parser.compileSubroutineBody());
+        Assertions.assertEquals(expected, parser.compileSubroutineBody());
     }
 
     @Test
@@ -710,7 +714,7 @@ class ParserTest {
                 "<symbol>}</symbol>\n" +
                 "</subroutineBody>\n" +
                 "</subroutineDec>\n";
-        assertEquals(expected, parser.compileSubroutineDec());
+        Assertions.assertEquals(expected, parser.compileSubroutineDec());
     }
 
     @Test
@@ -810,7 +814,7 @@ class ParserTest {
                 "</subroutineDec>\n" +
                 "<symbol>}</symbol>\n" +
                 "</class>\n";
-        assertEquals(expected, parser.compileClass());
+        Assertions.assertEquals(expected, parser.compileClass());
     }
 
     @Test
@@ -926,7 +930,7 @@ class ParserTest {
                 "</subroutineDec>\n" +
                 "<symbol>}</symbol>\n" +
                 "</class>\n";
-        assertEquals(expected, parser.compileClass());
+        Assertions.assertEquals(expected, parser.compileClass());
     }
 
     @Test
@@ -954,7 +958,7 @@ class ParserTest {
                 "</classVarDec>\n" +
                 "<symbol>}</symbol>\n" +
                 "</class>\n";
-        assertEquals(expected, parser.compileClass());
+        Assertions.assertEquals(expected, parser.compileClass());
     }
 
     @Test
@@ -1029,7 +1033,7 @@ class ParserTest {
                 "<symbol>}</symbol>\n" +
                 "</ifStatement>\n" +
                 "</statements>\n";
-        assertEquals(expected, parser.compileStatements());
+        Assertions.assertEquals(expected, parser.compileStatements());
     }
 
     @Test
@@ -1114,7 +1118,7 @@ class ParserTest {
                 "<symbol>}</symbol>\n" +
                 "</ifStatement>\n" +
                 "</statements>\n";
-        assertEquals(expected, parser.compileStatements());
+        Assertions.assertEquals(expected, parser.compileStatements());
     }
 
     @Test
@@ -1124,14 +1128,14 @@ class ParserTest {
                 "<parameterList>\n" +
                 "</parameterList>\n" +
                 "<symbol>)</symbol>\n";
-        assertEquals(expected, parser.compileParamList());
+        Assertions.assertEquals(expected, parser.compileParamList());
     }
 
     @Test
     void testEmptyExpressionList() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_empty_expression_list.txt"));
         String expected = "<expressionList>\n" + "</expressionList>\n";
-        assertEquals(expected, parser.compileExpressionList());
+        Assertions.assertEquals(expected, parser.compileExpressionList());
     }
 
     @Test
@@ -1140,6 +1144,6 @@ class ParserTest {
         String expected = "<term>\n" +
                 "<stringConstant>ENTER YOUR NAME: </stringConstant>\n" +
                 "</term>\n";
-        assertEquals(expected, parser.compileTerm());
+        Assertions.assertEquals(expected, parser.compileTerm());
     }
 }

@@ -1,3 +1,5 @@
+package main;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -10,11 +12,11 @@ import java.util.regex.Pattern;
 public class Tokenizer {
 
     // TODO: which class should be responsible for closing the source file?
-    private int currentIndex; // keeps track of where the Tokenizer is at in the current line
+    private int currentIndex; // keeps track of where the main.Tokenizer is at in the current line
     private List<String> tokens;
 
     /**
-     * Tokenizes a Jack source code file and initializes the Tokenizer
+     * Tokenizes a Jack source code file and initializes the main.Tokenizer
      * @param sourceFile the Jack source code file
      * @throws IOException IOException
      */

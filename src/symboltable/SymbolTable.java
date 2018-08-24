@@ -1,6 +1,10 @@
+package symboltable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import symbol.Symbol;
+import symbol.SymbolKind;
 
 public abstract class SymbolTable {
 

@@ -1,3 +1,5 @@
+package symbol;
+
 public class Symbol {
 
     private String dataType; // the data type of the symbol, e.g. int, boolean, char, etc

@@ -1,3 +1,5 @@
+package main;
+
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -6,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Works in tandem with a Tokenizer object to generate a parsetree
+ * Works in tandem with a main.Tokenizer object to generate a parsetree
  */
 public class Parser {
 
@@ -46,7 +48,7 @@ public class Parser {
      * Compiles the XML representation of a class variable declaration
      * @return the XML representation as a string
      */
-    String compileClassVarDec() {
+    public String compileClassVarDec() {
         StringBuilder sb = new StringBuilder();
         sb.append("<classVarDec>\n");
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "static" or "field"
@@ -68,7 +70,7 @@ public class Parser {
      * Compiles the XML representation of a parameter list, including the parentheses
      * @return the XML representation of a parameter list, including the parentheses
      */
-    String compileParamList() {
+    public String compileParamList() {
         StringBuilder sb = new StringBuilder();
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // the opening (
         sb.append("<parameterList>\n");
@@ -416,7 +418,7 @@ public class Parser {
      * Compiles the declaration of a local variable into XML
      * @return the XML representation of the declaration of a local variable
      */
-    String compileVarDec() {
+    public String compileVarDec() {
         StringBuilder sb = new StringBuilder();
         sb.append("<varDec>\n");
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // var
@@ -442,7 +444,7 @@ public class Parser {
      * Compiles the XML representation of a subroutine body declaration
      * @return the XML representation of a subroutine body declaration
      */
-    String compileSubroutineBody() {
+    public String compileSubroutineBody() {
         StringBuilder sb = new StringBuilder();
         sb.append("<subroutineBody>\n");
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
@@ -463,7 +465,7 @@ public class Parser {
      * Compiles the XML representation of a subroutine declaration
      * @return the XML representation of a subroutine declaration
      */
-    String compileSubroutineDec() {
+    public String compileSubroutineDec() {
         StringBuilder sb = new StringBuilder();
         sb.append("<subroutineDec>\n");
         // "constructor" or "function" or "method"
@@ -485,7 +487,7 @@ public class Parser {
      * Compiles the XML representation of a class declaration
      * @return the XML representation of a class declaration
      */
-    String compileClass() {
+    public String compileClass() {
         StringBuilder sb = new StringBuilder();
         sb.append("<class>\n");
         sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "class"

@@ -1,3 +1,7 @@
+package test;
+
+import main.Tokenizer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -15,10 +19,10 @@ class TokenizerTest {
         Tokenizer tokenizer = new Tokenizer(inputFile);
         List<String> expectedTokens = Arrays.asList("these", "are", "valid", "tokens");
         for (int i = 0; i < expectedTokens.size(); i++) {
-            assertTrue(tokenizer.hasNextToken());
-            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+            Assertions.assertTrue(tokenizer.hasNextToken());
+            Assertions.assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
         }
-        assertFalse(tokenizer.hasNextToken());
+        Assertions.assertFalse(tokenizer.hasNextToken());
     }
 
     @Test
@@ -27,10 +31,10 @@ class TokenizerTest {
         Tokenizer tokenizer = new Tokenizer(inputFile);
         List<String> expectedTokens = Arrays.asList("half", "(", "of", ")", "this", "line", "are", "comments");
         for (int i = 0; i < expectedTokens.size(); i++) {
-            assertTrue(tokenizer.hasNextToken());
-            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+            Assertions.assertTrue(tokenizer.hasNextToken());
+            Assertions.assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
         }
-        assertFalse(tokenizer.hasNextToken());
+        Assertions.assertFalse(tokenizer.hasNextToken());
     }
 
     @Test
@@ -43,10 +47,10 @@ class TokenizerTest {
                 "x", ";", "let", "arr", "=", "y", ";", "return", "this", ";"
                 , "}", "}");
         for (int i = 0; i < expectedTokens.size(); i++) {
-            assertTrue(tokenizer.hasNextToken());
-            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+            Assertions.assertTrue(tokenizer.hasNextToken());
+            Assertions.assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
         }
-        assertFalse(tokenizer.hasNextToken());
+        Assertions.assertFalse(tokenizer.hasNextToken());
     }
 
     @Test
@@ -56,10 +60,10 @@ class TokenizerTest {
         List<String> expectedTokens = Arrays.asList("var", "String", "str",
                 ";", "let", "str", "=", "\"hello world\"", ";");
         for (int i = 0; i < expectedTokens.size(); i++) {
-            assertTrue(tokenizer.hasNextToken());
-            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+            Assertions.assertTrue(tokenizer.hasNextToken());
+            Assertions.assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
         }
-        assertFalse(tokenizer.hasNextToken());
+        Assertions.assertFalse(tokenizer.hasNextToken());
     }
 
     @Test
@@ -69,10 +73,10 @@ class TokenizerTest {
         List<String> expectedTokens = Arrays.asList("function", "myFunc", "("
                 , ")", ";", "let", "do", "(", ")", ";", "\"mystring str\"");
         for (int i = 0; i < expectedTokens.size(); i++) {
-            assertTrue(tokenizer.hasNextToken());
-            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+            Assertions.assertTrue(tokenizer.hasNextToken());
+            Assertions.assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
         }
-        assertFalse(tokenizer.hasNextToken());
+        Assertions.assertFalse(tokenizer.hasNextToken());
     }
 
     @Test
@@ -83,9 +87,9 @@ class TokenizerTest {
             "field", "int", "myVar", ";", "function", "myFunc", "(", "int", "x", ")",
             "{", "do", "something", "(", ")", ";", "}", "}");
         for (int i = 0; i < expectedTokens.size(); i++) {
-            assertTrue(tokenizer.hasNextToken());
-            assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
+            Assertions.assertTrue(tokenizer.hasNextToken());
+            Assertions.assertEquals(expectedTokens.get(i), tokenizer.getNextToken());
         }
-        assertFalse(tokenizer.hasNextToken());
+        Assertions.assertFalse(tokenizer.hasNextToken());
     }
 }
