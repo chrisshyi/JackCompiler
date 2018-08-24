@@ -10,7 +10,7 @@ public class SubroutineSymbolTable extends SymbolTable {
 
     @Override
     public void define(String varName, String varType, SymbolKind varKind) {
-        switch(varKind) {
+        switch (varKind) {
             case LOCAL:
                 this.table.put(varName, new Symbol(varType, varKind, varName, localVarCount));
                 this.localVarCount++;

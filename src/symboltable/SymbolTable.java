@@ -8,7 +8,7 @@ import symbol.SymbolKind;
 
 public abstract class SymbolTable {
 
-    private Map<String, Symbol> table;
+    Map<String, Symbol> table;
 
     public SymbolTable() {
         this.table = new HashMap<>();
@@ -34,5 +34,10 @@ public abstract class SymbolTable {
      * @param varName the name of the symbol
      * @return an Optional object, since the symbol may or may not exist
      */
-    public abstract Optional<Symbol> lookUp(String varName);
+    public Optional<Symbol> lookUp(String varName) {
+        if (this.table.containsKey(varName)) {
+            return Optional.of(this.table.get(varName));
+        }
+        return Optional.empty();
+    }
 }
