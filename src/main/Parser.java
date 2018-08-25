@@ -17,13 +17,14 @@ import java.util.regex.Pattern;
  * Works in tandem with a main.Tokenizer object to generate a parsetree
  */
 public class Parser {
-
+    //TODO: need to handle void subroutine definition and calling
     private Tokenizer tokenizer;
     private String outputFilePath;
     private SubroutineSymbolTable subroutineST;
     private ClassSymbolTable classST;
     private CodeGenerator codeGenerator;
     private String currentClassName = ""; // name of the class being compiled
+    private static int numLabels = 0; // enumerated to keep labels unique
     // define Sets and Patterns for matching terminal elements
     private final Set<String> keywordSet = new HashSet<>(Arrays.asList("class",
             "constructor", "function", "method", "field", "static",
@@ -352,31 +353,41 @@ public class Parser {
     }
 
     /**
-     * Compiles the XML representation of an if statement
-     * @return the XML representation of an if statement
+     * Compiles the VM code for an if statement
+     * @return the VM code for an if statement
      */
     public String compileIfStatement() {
         StringBuilder sb = new StringBuilder();
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // (
+        tokenizer.getNextToken(); // (
         sb.append(compileExpression());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // )
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
+        sb.append(codeGenerator.generateUnaryOp("~")); // negate the expression
+        sb.append(codeGenerator.generateIfGOTO("LBL_" + numLabels));
+        int labelOne = numLabels; // save this
+        numLabels++;
+        tokenizer.getNextToken(); // )
+        tokenizer.getNextToken(); // {
         sb.append(compileStatements());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // }
+        sb.append(codeGenerator.generateGOTO("LBL_" + numLabels));
+        int labelTwo = numLabels; // save before incrementing
+        numLabels++;
+        tokenizer.getNextToken(); // }
         if (!tokenizer.hasNextToken()) {
-            sb.append("</ifStatement>\n");
+            sb.append(codeGenerator.generateLabel("LBL_" + labelOne));
+            sb.append(codeGenerator.generateLabel("LBL_" + labelTwo));
             return sb.toString();
         }
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals("else")) {
-            sb.append(formatFromTemplate("keyword", nextToken));
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
+            tokenizer.getNextToken(); // {
+            sb.append(codeGenerator.generateLabel("LBL_" + labelOne));
             sb.append(compileStatements());
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // }
+            sb.append(codeGenerator.generateLabel("LBL_" + labelTwo));
+            tokenizer.getNextToken(); // }
         } else {
+            sb.append(codeGenerator.generateLabel("LBL_" + labelOne));
+            sb.append(codeGenerator.generateLabel("LBL_" + labelTwo));
             tokenizer.backTrack();
         }
-        sb.append("</ifStatement>\n");
         return sb.toString();
     }
 
@@ -397,32 +408,31 @@ public class Parser {
     }
 
     /**
-     * Compiles the XML representation of a do statement
-     * @return the XML representation of a do statement
+     * Compiles the VM code for a do statement, does not include the "do" keyword
+     * @return the VM code for a do statement, does not include the "do" keyword
      */
     public String compileDoStatement() {
         StringBuilder sb = new StringBuilder();
         sb.append(compileSubroutineCall());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
-        sb.append("</doStatement>\n");
+        tokenizer.getNextToken(); // ;
+        sb.append(codeGenerator.generatePop(MemorySegment.TEMP, 0)); // pop off the useless value
         return sb.toString();
     }
 
     /**
-     * Compiles the XML representation of a return statement
-     * @return the XML representation of a return statement
+     * Compiles the VM code for a return statement, does not include the "return" keyword
+     * @return the VM code for a return statement, does not include the "return" keyword
      */
     public String compileReturnStatement() {
         StringBuilder sb = new StringBuilder();
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals(";")) {
-            sb.append(formatFromTemplate("symbol", nextToken));
+            return sb.toString();
         } else {
             tokenizer.backTrack();
             sb.append(compileExpression());
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
+            tokenizer.getNextToken(); // ;
         }
-        sb.append("</returnStatement>\n");
         return sb.toString();
     }
 
