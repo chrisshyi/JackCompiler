@@ -252,12 +252,19 @@ public class Parser {
         String subroutineName;
         String nextToken = tokenizer.getNextToken(); // identifier
         String nextNextToken = tokenizer.getNextToken(); // either ( or .
+        boolean isMethod = false;
 
         if (nextNextToken.equals(".")) { // not a method in the same class
-            if (subroutineST.hasSymbol(nextToken)) {
-                className = subroutineST.lookUp(nextToken).get().getDataType();
-            } else if (classST.hasSymbol(nextToken)) {
-                className = classST.lookUp(nextToken).get().getDataType();
+            Symbol symbol;
+            if (subroutineST.hasSymbol(nextToken) || classST.hasSymbol(nextToken)) {
+                Optional<Symbol> option = subroutineST.lookUp(nextToken);
+                if (!option.isPresent()) {
+                    option = classST.lookUp(nextToken);
+                }
+                symbol = option.get();
+                className = symbol.getDataType();
+                sb.append(codeGenerator.generatePush(getSymbolMemSeg(symbol), symbol.getNumKind()));
+                isMethod = true;
             } else { // function call
                 className = nextToken;
             }
@@ -266,11 +273,17 @@ public class Parser {
         } else { // method in the same class
             className = this.currentClassName;
             subroutineName = nextToken;
+            sb.append(codeGenerator.generatePush(MemorySegment.THIS, 0));
+            isMethod = true;
         }
         String fullSubroutineName = String.format("%s.%s", className, subroutineName);
         ExpressionList compiledExpList = compileExpressionList();
+        int numArgs = compiledExpList.getNumExpressions();
+        if (isMethod) {
+            numArgs++;
+        }
         sb.append(compiledExpList.getVmCode());
-        sb.append(codeGenerator.generateFuncCall(fullSubroutineName, compiledExpList.getNumExpressions()));
+        sb.append(codeGenerator.generateFuncCall(fullSubroutineName, numArgs));
         tokenizer.getNextToken(); // )
         return sb.toString();
     }
@@ -585,7 +598,7 @@ public class Parser {
     }
 
     /**
-     * Looks up a symbol from the two symbol tables
+     * Looks up a symbol from the two symbol tables, assuming that the symbol exists
      * @param symbolName the name of the symbol
      * @return the found Symbol object
      */

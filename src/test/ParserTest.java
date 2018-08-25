@@ -1134,4 +1134,28 @@ class ParserTest {
                 "</term>\n";
         Assertions.assertEquals(expected, parser.compileTerm());
     }
+
+    @Test
+    void testTermSubroutineCall() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_term_subroutine_call.txt"));
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+
+        classST.define("myObj", "Object", SymbolKind.FIELD);
+        subroutineST.define("myArr", "Array", SymbolKind.LOCAL);
+        classST.define("a", "boolean", SymbolKind.STATIC);
+        subroutineST.define("b", "int", SymbolKind.ARGUMENT);
+
+        String expected = "push this 0\n" + // myObj
+                "push local 0\n" + // myArr
+                "push constant 0\n" +
+                "add\n" +
+                "pop pointer 1\n" +
+                "push that 0\n" +
+                "push static 0\n" + // a
+                "not\n" +
+                "push argument 0\n" +
+                "call Object.some_method 4\n";
+        assertEquals(expected, parser.compileTerm());
+    }
 }

@@ -1,0 +1,1 @@
+myObj.some_method(myArr[0], ~a, b)
