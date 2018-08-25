@@ -1,5 +1,8 @@
 package main;
 
+import symboltable.ClassSymbolTable;
+import symboltable.SubroutineSymbolTable;
+
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,6 +17,8 @@ public class Parser {
 
     private Tokenizer tokenizer;
     private String outputFilePath;
+    private SubroutineSymbolTable subroutineST;
+    private ClassSymbolTable classST;
     // define Sets and Patterns for matching terminal elements
     private final Set<String> keywordSet = new HashSet<>(Arrays.asList("class",
             "constructor", "function", "method", "field", "static",
@@ -39,6 +44,8 @@ public class Parser {
 
     public void parse() throws IOException {
         File outputFile = new File(this.outputFilePath);
+        this.subroutineST = new SubroutineSymbolTable();
+        this.classST = new ClassSymbolTable();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write(compileClass());
         }
