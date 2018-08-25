@@ -1,6 +1,7 @@
 package main;
 
 import symbol.Symbol;
+import symbol.SymbolKind;
 import symboltable.ClassSymbolTable;
 import symboltable.SubroutineSymbolTable;
 
@@ -157,25 +158,25 @@ public class Parser {
     }
 
     /**
-     * Compiles an expression
-     * @return
+     * Compiles an expression into VM code
+     * @return an expression in VM code
      */
     public String compileExpression() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<expression>\n");
         sb.append(compileTerm());
         if (!tokenizer.hasNextToken()) {
-            sb.append("</expression>\n");
             return sb.toString();
         }
         String nextToken = tokenizer.getNextToken();
-        if (binaryOpSet.contains(nextToken)) {
-            sb.append(formatFromTemplate("symbol", nextToken));
+        while (binaryOpSet.contains(nextToken)) {
             sb.append(compileTerm());
-        } else {
-            tokenizer.backTrack();
+            sb.append(codeGenerator.generateArithLogical(nextToken));
+            if (!tokenizer.hasNextToken()) {
+                return sb.toString();
+            }
+            nextToken = tokenizer.getNextToken();
         }
-        sb.append("</expression>\n");
+        tokenizer.backTrack();
         return sb.toString();
     }
 
@@ -186,7 +187,6 @@ public class Parser {
      */
     public String compileTerm() {
         StringBuilder sb = new StringBuilder();
-//        sb.append("<term>\n");
         String nextToken = tokenizer.getNextToken();
         Matcher intConstantMatcher = intConstPattern.matcher(nextToken);
         Matcher strConstantMatcher = stringConstPattern.matcher(nextToken);
@@ -197,11 +197,9 @@ public class Parser {
         } else if (keyWordConstantSet.contains(nextToken)) { // keyword constant
             sb.append(codeGenerator.generateKeywordConstant(nextToken));
         } else if (nextToken.equals("(")) { // (expression)
-//            sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileExpression());
-//            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+            tokenizer.getNextToken(); // )
         } else if (symbolSet.contains(nextToken)) { // unaryOp
-//            sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileTerm());
             sb.append(codeGenerator.generateArithLogical(nextToken));
         } else { // either just varName, array access or subroutine call
@@ -213,35 +211,24 @@ public class Parser {
 //            }
             String nextNextToken = tokenizer.getNextToken();
             if (nextNextToken.equals("[")) { // array access
-//                sb.append(formatFromTemplate("identifier", nextToken));
-//                sb.append(formatFromTemplate("symbol", nextNextToken)); // [
+                Symbol unpackedSymbol = lookUpSymbol(nextToken);
+                sb.append(codeGenerator.generatePush(getSymbolMemSeg(unpackedSymbol), unpackedSymbol.getNumKind()));
                 sb.append(compileExpression());
-//                sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ]
+                sb.append(codeGenerator.generateArithLogical("+"));
+                sb.append(codeGenerator.generatePop(MemorySegment.POINTER, 1));
+                tokenizer.getNextToken(); // ]
             } else if (nextNextToken.equals("(") || nextNextToken.equals(".")) { // subroutine call
                 for (int i = 0; i < 2; i++) {
                     tokenizer.backTrack(); // backtrack two spots to before the identifier
                 }
                 sb.append(compileSubroutineCall());
             } else { // just identifier
-//                sb.append(formatFromTemplate("identifier", nextToken));
-                Optional<Symbol> symbol = subroutineST.lookUp(nextToken);
-                if (!symbol.isPresent()) {
-                    symbol = classST.lookUp(nextToken);
-                }
-                /*
-                 * probably not needed, can assume Jack programs are well formed and will not
-                 * use a variable that is undeclared
-                 */
-                if (!symbol.isPresent()) {
-                    System.out.println(String.format("Symbol %s cannot be found", nextToken));
-                    throw new RuntimeException();
-                }
-                Symbol unpackedSymbol = symbol.get();
-                sb.append(codeGenerator.generatePush(unpackedSymbol.getSymbolKind(), unpackedSymbol.getNumKind()));
+                Symbol unpackedSymbol = lookUpSymbol(nextToken);
+                MemorySegment memSeg = getSymbolMemSeg(unpackedSymbol); // give memSeg an arbitrary starting value
+                sb.append(codeGenerator.generatePush(memSeg, unpackedSymbol.getNumKind()));
                 tokenizer.backTrack(); // spit out the nextNextToken
             }
         }
-//        sb.append("</term>\n");
         return sb.toString();
     }
 
@@ -284,37 +271,33 @@ public class Parser {
      */
     public ExpressionList compileExpressionList() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<expressionList>\n");
+        int numExpressions = 0;
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals(")")) { // empty expression list
             tokenizer.backTrack();
-            sb.append("</expressionList>\n");
-            return sb.toString();
+            return new ExpressionList(sb.toString(), numExpressions);
         }
         tokenizer.backTrack();
         sb.append(compileExpression());
+        numExpressions++;
         if (!tokenizer.hasNextToken()) {
-            sb.append("</expressionList>\n");
-            return sb.toString();
+            return new ExpressionList(sb.toString(), numExpressions);
         }
         nextToken = tokenizer.getNextToken();
         if (!nextToken.equals(",")) {
             tokenizer.backTrack();
-            sb.append("</expressionList>\n");
-            return sb.toString();
+            return new ExpressionList(sb.toString(), numExpressions);
         }
         while (nextToken.equals(",")) {
-            sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileExpression());
+            numExpressions++;
             if (!tokenizer.hasNextToken()) {
-                sb.append("</expressionList>\n");
-                return sb.toString();
+                return new ExpressionList(sb.toString(), numExpressions);
             }
             nextToken = tokenizer.getNextToken();
         }
         tokenizer.backTrack();
-        sb.append("</expressionList>\n");
-        return sb.toString();
+        return new ExpressionList(sb.toString(), numExpressions);
     }
 
     /**
@@ -565,5 +548,50 @@ public class Parser {
     private String extractFileNameWithoutExtension(String filePath) {
         int indexOfPeriod = filePath.lastIndexOf(".");
         return filePath.substring(0, indexOfPeriod);
+    }
+
+    /**
+     * Retrives the corresponding MemorySegment of a Symbol
+     * @param symbol a Symbol object
+     * @return the corresponding MemorySegment of a Symbol
+     */
+    private MemorySegment getSymbolMemSeg(Symbol symbol) {
+        MemorySegment memSeg = MemorySegment.LOCAL; // give memSeg an arbitrary starting value
+        switch (symbol.getSymbolKind()) {
+            case FIELD:
+                memSeg = MemorySegment.THIS;
+                break;
+            case STATIC:
+                memSeg = MemorySegment.STATIC;
+                break;
+            case ARGUMENT:
+                memSeg = MemorySegment.ARGUMENT;
+                break;
+            case LOCAL:
+                memSeg = MemorySegment.LOCAL;
+                break;
+        }
+        return memSeg;
+    }
+
+    /**
+     * Looks up a symbol from the two symbol tables
+     * @param symbolName the name of the symbol
+     * @return the found Symbol object
+     */
+    private Symbol lookUpSymbol(String symbolName) {
+        Optional<Symbol> symbol = subroutineST.lookUp(symbolName);
+        if (!symbol.isPresent()) {
+            symbol = classST.lookUp(symbolName);
+        }
+        /*
+         * probably not needed, can assume Jack programs are well formed and will not
+         * use a variable that is undeclared
+         */
+        if (!symbol.isPresent()) {
+            System.out.println(String.format("Symbol %s cannot be found", symbolName));
+            throw new RuntimeException();
+        }
+        return symbol.get();
     }
 }
