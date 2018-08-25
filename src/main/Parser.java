@@ -281,7 +281,7 @@ public class Parser {
         } else { // method in the same class
             className = this.currentClassName;
             subroutineName = nextToken;
-            sb.append(codeGenerator.generatePush(MemorySegment.THIS, 0));
+            sb.append(codeGenerator.generatePush(MemorySegment.POINTER, 0));
             isMethod = true;
         }
         String fullSubroutineName = String.format("%s.%s", className, subroutineName);

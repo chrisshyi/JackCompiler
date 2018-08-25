@@ -1170,7 +1170,7 @@ class ParserTest {
         classST.define("a", "boolean", SymbolKind.STATIC);
         subroutineST.define("b", "int", SymbolKind.ARGUMENT);
 
-        String expected = "push this 0\n" + // this object
+        String expected = "push pointer 0\n" + // this object
                 "push local 0\n" + // myArr
                 "push constant 0\n" +
                 "add\n" +
