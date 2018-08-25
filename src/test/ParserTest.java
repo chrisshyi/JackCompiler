@@ -1,9 +1,13 @@
 package test;
 
+import main.ExpressionList;
 import main.Parser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import symbol.SymbolKind;
+import symboltable.ClassSymbolTable;
+import symboltable.SubroutineSymbolTable;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,137 +86,120 @@ class ParserTest {
     @Test
     void testTermIntegerConstant() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_term_int_const.txt"));
-        String expected = "<term>\n" +
-                "<integerConstant>127374</integerConstant>\n" +
-                "</term>\n";
+        String expected = "push constant 12733\n";
         Assertions.assertEquals(expected, parser.compileTerm());
     }
 
     @Test
-    void testTermstringConstant() throws IOException {
+    void testTermStringConstant() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_term_string_const.txt"));
-        String expected = "<term>\n" +
-                "<stringConstant>hello world</stringConstant>\n" +
-                "</term>\n";
+        String expected = "push constant 11\n" +
+                "call String.new 1\n" +
+                "push constant 104\n" + // h
+                "call String.appendChar 2\n" +
+                "push constant 101\n" + // e
+                "call String.appendChar 2\n" +
+                "push constant 108\n" + // l
+                "call String.appendChar 2\n" +
+                "push constant 108\n" + // l
+                "call String.appendChar 2\n" +
+                "push constant 111\n" + // o
+                "call String.appendChar 2\n" +
+                "push constant 32\n" + // space
+                "call String.appendChar 2\n" +
+                "push constant 119\n" + // w
+                "call String.appendChar 2\n" +
+                "push constant 111\n" + // o
+                "call String.appendChar 2\n" +
+                "push constant 114\n" + // r
+                "call String.appendChar 2\n" +
+                "push constant 108\n" + // l
+                "call String.appendChar 2\n" +
+                "push constant 100\n" + // d
+                "call String.appendChar 2\n";
         Assertions.assertEquals(expected, parser.compileTerm());
     }
 
     @Test
     void testTermUnaryOp() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_term_unary_op.txt"));
-        String expected = "<term>\n" +
-                "<symbol>~</symbol>\n" +
-                "<term>\n" +
-                    "<identifier>myBool</identifier>\n" +
-                "</term>\n" +
-                "</term>\n";
+        SubroutineSymbolTable st = parser.getSubroutineST();
+        st.define("myBool", "boolean", SymbolKind.LOCAL);
+        String expected = "push local 0\n" +
+                "not\n";
         Assertions.assertEquals(expected, parser.compileTerm());
     }
 
     @Test
     void testExpressionSingleTerm() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_expression_single_term.txt"));
-        String expected = "<expression>\n" +
-                "<term>\n" +
-                "<identifier>myArray</identifier>\n" +
-                "<symbol>[</symbol>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<integerConstant>10</integerConstant>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>]</symbol>\n" +
-                "</term>\n" +
-                "</expression>\n";
+        ClassSymbolTable classST = parser.getClassST();
+        classST.define("myArray", "Array", SymbolKind.FIELD);
+        String expected = "push this 0\n" +
+                "push constant 10\n" +
+                "add\n" +
+                "pop pointer 1\n" +
+                "push that 0\n";
+
         Assertions.assertEquals(expected, parser.compileExpression());
     }
 
     @Test
-    void testExpressionMultipleTerm() throws IOException {
+    void testExpressionMultipleTerms() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_expression_multiple_term.txt"));
-        String expected = "<expression>\n" +
-                "<term>\n" +
-                    "<identifier>myArr</identifier>\n" +
-                    "<symbol>[</symbol>\n" +
-                    "<expression>\n" +
-                        "<term>\n" +
-                        "<integerConstant>0</integerConstant>\n" +
-                        "</term>\n" +
-                    "</expression>\n" +
-                    "<symbol>]</symbol>\n" +
-                "</term>\n" +
-                "<symbol>=</symbol>\n" +
-                "<term>\n" +
-                    "<identifier>Helper</identifier>\n" +
-                    "<symbol>.</symbol>\n" +
-                    "<identifier>myMethod</identifier>\n" +
-                    "<symbol>(</symbol>\n" +
-                    "<expressionList>\n" +
-                        "<expression>\n" +
-                            "<term>\n" +
-                                "<stringConstant>hello</stringConstant>\n" +
-                            "</term>\n" +
-                        "</expression>\n" +
-                        "<symbol>,</symbol>\n" +
-                        "<expression>\n" +
-                        "<term>\n" +
-                            "<integerConstant>10</integerConstant>\n" +
-                        "</term>\n" +
-                        "</expression>\n" +
-                    "</expressionList>\n" +
-                    "<symbol>)</symbol>\n" +
-                "</term>\n" +
-                "</expression>\n";
+        ClassSymbolTable classST = parser.getClassST();
+        classST.define("myArr", "Array", SymbolKind.FIELD);
+
+        String expected = "push this 0\n" +
+                "push constant 0\n" +
+                "add\n" +
+                "pop pointer 1\n" +
+                "push that 0\n" +
+                "push constant 5\n" + // new string literal
+                "call String.new 1\n" +
+                "push constant 104\n" + // h
+                "call String.appendChar 2\n" +
+                "push constant 101\n" + // e
+                "call String.appendChar 2\n" +
+                "push constant 108\n" + // l
+                "call String.appendChar 2\n" +
+                "push constant 108\n" + // l
+                "call String.appendChar 2\n" +
+                "push constant 111\n" + // o
+                "call String.appendChar 2\n" +
+                "push constant 10\n" +
+                "call Helper.myMethod 2\n" +
+                "eq\n";
         Assertions.assertEquals(expected, parser.compileExpression());
     }
 
     @Test
     void testExpressionList() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_expression_list.txt"));
-        String expected = "<expressionList>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                        "<keyword>true</keyword>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>,</symbol>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                        "<identifier>a</identifier>\n" +
-                    "</term>\n" +
-                    "<symbol>+</symbol>\n" +
-                    "<term>\n" +
-                        "<identifier>b</identifier>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>,</symbol>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                        "<identifier>myVar</identifier>\n" +
-                        "<symbol>[</symbol>\n" +
-                        "<expression>\n" +
-                        "<term>\n" +
-                            "<integerConstant>0</integerConstant>\n" +
-                        "</term>\n" +
-                        "</expression>\n" +
-                        "<symbol>]</symbol>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>,</symbol>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                        "<identifier>c</identifier>\n" +
-                    "</term>\n" +
-                    "<symbol>=</symbol>\n" +
-                    "<term>\n" +
-                        "<symbol>~</symbol>\n" +
-                        "<term>\n" +
-                            "<identifier>d</identifier>\n" +
-                        "</term>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "</expressionList>\n";
-        Assertions.assertEquals(expected, parser.compileExpressionList());
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        classST.define("a", "int", SymbolKind.FIELD);
+        subroutineST.define("b", "int", SymbolKind.ARGUMENT);
+
+        subroutineST.define("myVar", "Array", SymbolKind.LOCAL);
+        classST.define("c", "int", SymbolKind.STATIC);
+        classST.define("d", "boolean", SymbolKind.STATIC);
+        String expected = "push constant 1\n" +
+                "neg\n" + // push true
+                "push this 0\n" + // a
+                "push argument 0\n" + // b
+                "add\n" +
+                "push local 0\n" + // myVar[0]
+                "push constant 0\n" +
+                "add\n" +
+                "pop pointer 1\n" +
+                "push that 0\n" +
+                "push static 0\n" + // c
+                "push static 1\n" + // d
+                "not\n" + // ~
+                "eq\n"; // =
+        ExpressionList expList = parser.compileExpressionList();
+        Assertions.assertEquals(expected, expList.getVmCode());
     }
 
     @Test
@@ -1134,8 +1121,9 @@ class ParserTest {
     @Test
     void testEmptyExpressionList() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_empty_expression_list.txt"));
-        String expected = "<expressionList>\n" + "</expressionList>\n";
-        Assertions.assertEquals(expected, parser.compileExpressionList());
+        String expected = "";
+        ExpressionList expList = parser.compileExpressionList();
+        Assertions.assertEquals(expected, expList.getVmCode());
     }
 
     @Test

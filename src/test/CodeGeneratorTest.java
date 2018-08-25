@@ -16,7 +16,7 @@ public class CodeGeneratorTest {
         String str = "Hello";
         String expected = "push constant 5\n" +
                 "call String.new 1\n" +
-                "push constant 72\n" + // h
+                "push constant 72\n" + // H
                 "call String.appendChar 2\n" +
                 "push constant 101\n" + // e
                 "call String.appendChar 2\n" +

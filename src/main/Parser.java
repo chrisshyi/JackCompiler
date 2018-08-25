@@ -50,6 +50,14 @@ public class Parser {
         this.codeGenerator = new CodeGenerator();
     }
 
+    public SubroutineSymbolTable getSubroutineST() {
+        return subroutineST;
+    }
+
+    public ClassSymbolTable getClassST() {
+        return classST;
+    }
+
     public void parse() throws IOException {
         File outputFile = new File(this.outputFilePath);
         this.subroutineST = new SubroutineSymbolTable();
@@ -201,14 +209,15 @@ public class Parser {
             tokenizer.getNextToken(); // )
         } else if (symbolSet.contains(nextToken)) { // unaryOp
             sb.append(compileTerm());
-            sb.append(codeGenerator.generateArithLogical(nextToken));
+            sb.append(codeGenerator.generateUnaryOp(nextToken));
         } else { // either just varName, array access or subroutine call
               /* Not sure why this block is here, seems unnecessary */
-//            if (!tokenizer.hasNextToken()) {
-//                sb.append(formatFromTemplate("identifier", nextToken));
-//                sb.append("</term>\n");
-//                return sb.toString();
-//            }
+            if (!tokenizer.hasNextToken()) {
+                Symbol unpackedSymbol = lookUpSymbol(nextToken);
+                MemorySegment memSeg = getSymbolMemSeg(unpackedSymbol); // give memSeg an arbitrary starting value
+                sb.append(codeGenerator.generatePush(memSeg, unpackedSymbol.getNumKind()));
+                return sb.toString();
+            }
             String nextNextToken = tokenizer.getNextToken();
             if (nextNextToken.equals("[")) { // array access
                 Symbol unpackedSymbol = lookUpSymbol(nextToken);
@@ -216,6 +225,7 @@ public class Parser {
                 sb.append(compileExpression());
                 sb.append(codeGenerator.generateArithLogical("+"));
                 sb.append(codeGenerator.generatePop(MemorySegment.POINTER, 1));
+                sb.append(codeGenerator.generatePush(MemorySegment.THAT, 0));
                 tokenizer.getNextToken(); // ]
             } else if (nextNextToken.equals("(") || nextNextToken.equals(".")) { // subroutine call
                 for (int i = 0; i < 2; i++) {
@@ -266,8 +276,8 @@ public class Parser {
     }
 
     /**
-     * Compiles the XML representation of a list of expressions
-     * @return the XML representation of a list of expressions
+     * Compiles VM code for a list of expressions
+     * @return the VM code for a list of expressions
      */
     public ExpressionList compileExpressionList() {
         StringBuilder sb = new StringBuilder();

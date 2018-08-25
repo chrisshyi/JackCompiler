@@ -31,43 +31,55 @@ public class CodeGenerator {
      * @return an arithmetic/logical VM instruction
      */
     public String generateArithLogical(String command) {
-        String toWrite = "";
+        String VMOp = "";
         switch (command) {
             case "+":
-                toWrite = "add";
+                VMOp = "add";
                 break;
             case "-":
-                toWrite = "sub";
-                break;
-            case "~":
-                toWrite = "neg";
+                VMOp = "sub";
                 break;
             case "=":
-                toWrite = "eq";
+                VMOp = "eq";
                 break;
             case ">":
-                toWrite = "gt";
+                VMOp = "gt";
                 break;
             case "<":
-                toWrite = "lt";
+                VMOp = "lt";
                 break;
             case "&":
-                toWrite = "and";
+                VMOp = "and";
                 break;
             case "|":
-                toWrite = "or";
-                break;
-            case "!":
-                toWrite = "not";
+                VMOp = "or";
                 break;
             case "*":
-                toWrite = "call Math.multiply 2";
+                VMOp = "call Math.multiply 2";
                 break;
             case "/":
-                toWrite = "call Math.divide 2";
+                VMOp = "call Math.divide 2";
                 break;
         }
-        return toWrite + "\n";
+        return VMOp + "\n";
+    }
+
+    /**
+     * Generate the VM command for a unary operation
+     * @param op the operation
+     * @return the VM command for a unary operation
+     */
+    public String generateUnaryOp(String op) {
+        String VMOp = "";
+        switch (op) {
+            case "-":
+                VMOp = "neg";
+                break;
+            case "~":
+                VMOp = "not";
+                break;
+        }
+        return VMOp + "\n";
     }
 
     /**
@@ -152,7 +164,7 @@ public class CodeGenerator {
         switch (keyword) {
             case "true":
                 vmCode += generatePush(MemorySegment.CONSTANT, 1);
-                vmCode += generateArithLogical("-");
+                vmCode += generateUnaryOp("-");
                 break;
             case "false": case "null":
                 vmCode += generatePush(MemorySegment.CONSTANT, 0);
