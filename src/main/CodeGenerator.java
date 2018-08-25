@@ -4,7 +4,7 @@ package main;
  * Class responsible for generating VM code
  */
 public class CodeGenerator {
-    
+
     /**
      * Generates a VM push instruction
      * @param segment the memory segment to push from
@@ -123,5 +123,22 @@ public class CodeGenerator {
      */
     public String generateReturn() {
         return "return\n";
+    }
+
+    /**
+     * Generates the VM code for constructing a string literal
+     * @param str the string literal
+     * @return the VM code for constructing a string literal
+     */
+    public String generateStringLiteral(String str) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(generatePush(MemorySegment.CONSTANT, str.length()));
+        sb.append(generateFuncCall("String.new", 1));
+        for (int i = 0; i < str.length(); i++) {
+            int asciiOfChar = (int) str.charAt(i);
+            sb.append(generatePush(MemorySegment.CONSTANT, asciiOfChar));
+            sb.append(generateFuncCall("String.appendChar", 2));
+        }
+        return sb.toString();
     }
 }
