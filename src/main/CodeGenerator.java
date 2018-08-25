@@ -4,10 +4,7 @@ package main;
  * Class responsible for generating VM code
  */
 public class CodeGenerator {
-
-    private final String pushTemplate = "push %s %d\n";
-    private final String popTemplate = "pop %s %d\n";
-
+    
     /**
      * Generates a VM push instruction
      * @param segment the memory segment to push from
@@ -15,7 +12,7 @@ public class CodeGenerator {
      * @return a VM push instruction
      */
     public String generatePush(MemorySegment segment, int index) {
-        return String.format(pushTemplate, segment.name().toLowerCase(), index);
+        return String.format("push %s %d\n", segment.name().toLowerCase(), index);
     }
 
     /**
@@ -25,7 +22,7 @@ public class CodeGenerator {
      * @return a VM pop instruction
      */
     public String generatePop(MemorySegment segment, int index) {
-        return String.format(popTemplate, segment.name().toLowerCase(), index);
+        return String.format("pop %s %d\n", segment.name().toLowerCase(), index);
     }
 
     /**
