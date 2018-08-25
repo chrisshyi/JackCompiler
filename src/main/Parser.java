@@ -1,11 +1,13 @@
 package main;
 
+import symbol.Symbol;
 import symboltable.ClassSymbolTable;
 import symboltable.SubroutineSymbolTable;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +21,8 @@ public class Parser {
     private String outputFilePath;
     private SubroutineSymbolTable subroutineST;
     private ClassSymbolTable classST;
+    private CodeGenerator codeGenerator;
+    private String currentClassName = ""; // name of the class being compiled
     // define Sets and Patterns for matching terminal elements
     private final Set<String> keywordSet = new HashSet<>(Arrays.asList("class",
             "constructor", "function", "method", "field", "static",
@@ -40,6 +44,9 @@ public class Parser {
     public Parser(File inputFile) throws IOException {
         this.tokenizer = new Tokenizer(inputFile);
         this.outputFilePath = extractFileNameWithoutExtension(inputFile.toString()) + ".xml";
+        this.subroutineST = new SubroutineSymbolTable();
+        this.classST = new ClassSymbolTable();
+        this.codeGenerator = new CodeGenerator();
     }
 
     public void parse() throws IOException {
@@ -174,69 +181,100 @@ public class Parser {
 
 
     /**
-     * Compiles the XML representation of a term, recursively
-     * @return the XML representation of a term, as dictated by the Jack grammar
+     * Compiles a Jack term into the corresponding VM code
+     * @return VM code for a term
      */
     public String compileTerm() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<term>\n");
+//        sb.append("<term>\n");
         String nextToken = tokenizer.getNextToken();
         Matcher intConstantMatcher = intConstPattern.matcher(nextToken);
         Matcher strConstantMatcher = stringConstPattern.matcher(nextToken);
         if (intConstantMatcher.find()) { // integer constant
-            sb.append(formatFromTemplate("integerConstant", nextToken));
+            sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, Integer.parseInt(nextToken)));
         } else if (strConstantMatcher.find()) { // string constant, need to strip off quotes
-            sb.append(formatFromTemplate("stringConstant", nextToken.replaceAll("\"", "")));
+            sb.append(codeGenerator.generateStringLiteral(nextToken.replaceAll("\"", "")));
         } else if (keyWordConstantSet.contains(nextToken)) { // keyword constant
-            sb.append(formatFromTemplate("keyword", nextToken));
+            sb.append(codeGenerator.generateKeywordConstant(nextToken));
         } else if (nextToken.equals("(")) { // (expression)
-            sb.append(formatFromTemplate("symbol", nextToken));
+//            sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileExpression());
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
-        } else if (symbolSet.contains(nextToken)) { //unaryOp
-            sb.append(formatFromTemplate("symbol", nextToken));
+//            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+        } else if (symbolSet.contains(nextToken)) { // unaryOp
+//            sb.append(formatFromTemplate("symbol", nextToken));
             sb.append(compileTerm());
-        } else { // either just varName, array indexing or subroutine call
-            if (!tokenizer.hasNextToken()) {
-                sb.append(formatFromTemplate("identifier", nextToken));
-                sb.append("</term>\n");
-                return sb.toString();
-            }
+            sb.append(codeGenerator.generateArithLogical(nextToken));
+        } else { // either just varName, array access or subroutine call
+              /* Not sure why this block is here, seems unnecessary */
+//            if (!tokenizer.hasNextToken()) {
+//                sb.append(formatFromTemplate("identifier", nextToken));
+//                sb.append("</term>\n");
+//                return sb.toString();
+//            }
             String nextNextToken = tokenizer.getNextToken();
-            if (nextNextToken.equals("[")) {
-                sb.append(formatFromTemplate("identifier", nextToken));
-                sb.append(formatFromTemplate("symbol", nextNextToken)); // [
+            if (nextNextToken.equals("[")) { // array access
+//                sb.append(formatFromTemplate("identifier", nextToken));
+//                sb.append(formatFromTemplate("symbol", nextNextToken)); // [
                 sb.append(compileExpression());
-                sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ]
+//                sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ]
             } else if (nextNextToken.equals("(") || nextNextToken.equals(".")) { // subroutine call
                 for (int i = 0; i < 2; i++) {
                     tokenizer.backTrack(); // backtrack two spots to before the identifier
                 }
                 sb.append(compileSubroutineCall());
-            } else {
-                sb.append(formatFromTemplate("identifier", nextToken));
-                tokenizer.backTrack();
+            } else { // just identifier
+//                sb.append(formatFromTemplate("identifier", nextToken));
+                Optional<Symbol> symbol = subroutineST.lookUp(nextToken);
+                if (!symbol.isPresent()) {
+                    symbol = classST.lookUp(nextToken);
+                }
+                /*
+                 * probably not needed, can assume Jack programs are well formed and will not
+                 * use a variable that is undeclared
+                 */
+                if (!symbol.isPresent()) {
+                    System.out.println(String.format("Symbol %s cannot be found", nextToken));
+                    throw new RuntimeException();
+                }
+                Symbol unpackedSymbol = symbol.get();
+                sb.append(codeGenerator.generatePush(unpackedSymbol.getSymbolKind(), unpackedSymbol.getNumKind()));
+                tokenizer.backTrack(); // spit out the nextNextToken
             }
         }
-        sb.append("</term>\n");
+//        sb.append("</term>\n");
         return sb.toString();
     }
 
     /**
-     * Compiles the XML representation of a subroutine call
-     * @return the XML representation of a subroutine call
+     * Compiles the VM code for a subroutine call
+     * @return the VM code for a subroutine call
      */
     private String compileSubroutineCall() {
         StringBuilder sb = new StringBuilder();
-        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken()));
-        String nextToken = tokenizer.getNextToken();
-        sb.append(formatFromTemplate("symbol", nextToken)); // either ( or .
-        if (nextToken.equals(".")) {
-            sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // subroutineName
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // (
+        String className;
+        String subroutineName;
+        String nextToken = tokenizer.getNextToken(); // identifier
+        String nextNextToken = tokenizer.getNextToken(); // either ( or .
+
+        if (nextNextToken.equals(".")) { // not a method in the same class
+            if (subroutineST.hasSymbol(nextToken)) {
+                className = subroutineST.lookUp(nextToken).get().getDataType();
+            } else if (classST.hasSymbol(nextToken)) {
+                className = classST.lookUp(nextToken).get().getDataType();
+            } else { // function call
+                className = nextToken;
+            }
+            subroutineName = tokenizer.getNextToken();
+            tokenizer.getNextToken(); // (
+        } else { // method in the same class
+            className = this.currentClassName;
+            subroutineName = nextToken;
         }
-        sb.append(compileExpressionList());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // )
+        String fullSubroutineName = String.format("%s.%s", className, subroutineName);
+        ExpressionList compiledExpList = compileExpressionList();
+        sb.append(compiledExpList.getVmCode());
+        sb.append(codeGenerator.generateFuncCall(fullSubroutineName, compiledExpList.getNumExpressions()));
+        tokenizer.getNextToken(); // )
         return sb.toString();
     }
 
@@ -244,7 +282,7 @@ public class Parser {
      * Compiles the XML representation of a list of expressions
      * @return the XML representation of a list of expressions
      */
-    public String compileExpressionList() {
+    public ExpressionList compileExpressionList() {
         StringBuilder sb = new StringBuilder();
         sb.append("<expressionList>\n");
         String nextToken = tokenizer.getNextToken();
@@ -496,9 +534,11 @@ public class Parser {
      */
     public String compileClass() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<class>\n");
-        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "class"
-        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // className
+//        sb.append("<class>\n");
+//        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "class"
+//        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // currentClassName
+        tokenizer.getNextToken(); // the "class" keyword
+        this.currentClassName = tokenizer.getNextToken(); // name of the class
         sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals("static") || nextToken.equals("field")) {

@@ -141,4 +141,26 @@ public class CodeGenerator {
         }
         return sb.toString();
     }
+
+    /**
+     * Generates the VM code for pushing a keyword constant (e.g. true, false, null, etc)
+     * @param keyword the keyword
+     * @return the VM code for pushing a keyword constant
+     */
+    public String generateKeywordConstant(String keyword) {
+        String vmCode = "";
+        switch (keyword) {
+            case "true":
+                vmCode += generatePush(MemorySegment.CONSTANT, 1);
+                vmCode += generateArithLogical("-");
+                break;
+            case "false": case "null":
+                vmCode += generatePush(MemorySegment.CONSTANT, 0);
+                break;
+            case "this":
+                vmCode += generatePush(MemorySegment.POINTER, 0);
+                break;
+        }
+        return vmCode;
+    }
 }

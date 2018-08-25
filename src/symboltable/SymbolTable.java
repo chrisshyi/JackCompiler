@@ -3,6 +3,8 @@ package symboltable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import main.MemorySegment;
 import symbol.Symbol;
 import symbol.SymbolKind;
 
@@ -39,5 +41,14 @@ public abstract class SymbolTable {
             return Optional.of(this.table.get(varName));
         }
         return Optional.empty();
+    }
+
+    /**
+     * Checks if the symbol table contains a symbol
+     * @param varName the symbol to check
+     * @return true if the symbol is present, false if otherwise
+     */
+    public boolean hasSymbol(String varName) {
+        return this.table.containsKey(varName);
     }
 }
