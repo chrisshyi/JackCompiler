@@ -90,6 +90,13 @@ public class Parser {
     }
 
     /**
+     * Setter method for testing purposes
+     * @param className the class name used to set the current class name
+     */
+    public void setCurrentClassName(String className) {
+        this.currentClassName = className;
+    }
+    /**
      * Compiles the XML representation of a parameter list, including the parentheses
      * @return the XML representation of a parameter list, including the parentheses
      */
