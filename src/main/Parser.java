@@ -338,8 +338,8 @@ public class Parser {
     }
 
     /**
-     * Compiles the XML representation of a let statement
-     * @return the XML representation of a let statement
+     * Compiles the VM code for a let statement
+     * @return the VM code for a let statement
      */
     public String compileLetStatement() {
         StringBuilder sb = new StringBuilder();
@@ -405,8 +405,8 @@ public class Parser {
     }
 
     /**
-     * Compiles the XML representation of a while statement
-     * @return the XML representation of a while statement
+     * Compiles the VM code for a while statement
+     * @return the VM code for a while statement
      */
     public String compileWhileStatement() {
         StringBuilder sb = new StringBuilder();
@@ -464,7 +464,7 @@ public class Parser {
 
     /**
      * Compiles zero or more statements
-     * @return the XML representation of statements(s)
+     * @return the VM code of statements(s)
      */
     public String compileStatements() {
         StringBuilder sb = new StringBuilder();
@@ -501,28 +501,21 @@ public class Parser {
     }
 
     /**
-     * Compiles the declaration of a local variable into XML
-     * @return the XML representation of the declaration of a local variable
+     * Compiles the declaration of local variables into VM code
+     * @return the VM code of local variable declaration
      */
     public String compileVarDec() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<varDec>\n");
-        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // var
-        String nextToken = tokenizer.getNextToken(); // type
-        if (keywordSet.contains(nextToken)) {
-            sb.append(formatFromTemplate("keyword", nextToken));
-        } else {
-            sb.append(formatFromTemplate("identifier", nextToken));
-        }
-        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken()));
-        nextToken = tokenizer.getNextToken();
+        tokenizer.getNextToken(); // var
+        String varType = tokenizer.getNextToken(); // type
+        String varName = tokenizer.getNextToken();
+        subroutineST.define(varName, varType, SymbolKind.LOCAL);
+        String nextToken = tokenizer.getNextToken();
         while (nextToken.equals(",")) {
-            sb.append(formatFromTemplate("symbol", nextToken));
-            sb.append(formatFromTemplate("identifier", tokenizer.getNextToken()));
+            varName = tokenizer.getNextToken();
+            subroutineST.define(varName, varType, SymbolKind.LOCAL);
             nextToken = tokenizer.getNextToken();
         }
-        sb.append(formatFromTemplate("symbol", nextToken));
-        sb.append("</varDec>\n");
         return sb.toString();
     }
 

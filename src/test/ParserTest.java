@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import symbol.Symbol;
 import symbol.SymbolKind;
 import symboltable.ClassSymbolTable;
 import symboltable.SubroutineSymbolTable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -423,29 +425,28 @@ class ParserTest {
     @Test
     void testVarDecSingle() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_var_dec_single.txt"));
-        String expected = "<varDec>\n" +
-                "<keyword>var</keyword>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>myInt</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</varDec>\n";
-        Assertions.assertEquals(expected, parser.compileVarDec());
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        parser.compileVarDec();
+
+        Optional<Symbol> boxedSymbol = subroutineST.lookUp("myInt");
+        assertTrue(boxedSymbol.isPresent());
+        assertEquals("int", boxedSymbol.get().getDataType());
+        assertEquals(0, boxedSymbol.get().getNumKind());
     }
 
     @Test
     void testVarDecMult() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_var_dec_mult.txt"));
-        String expected = "<varDec>\n" +
-                "<keyword>var</keyword>\n" +
-                "<identifier>MyClass</identifier>\n" +
-                "<identifier>obj1</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>obj2</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>obj3</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</varDec>\n";
-        Assertions.assertEquals(expected, parser.compileVarDec());
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        parser.compileVarDec();
+
+        String[] varNames = {"obj1", "obj2", "obj3"};
+        for (int i = 0; i < varNames.length; i++) {
+            Optional<Symbol> boxedSymbol = subroutineST.lookUp(varNames[i]);
+            assertTrue(boxedSymbol.isPresent());
+            assertEquals("MyClass", boxedSymbol.get().getDataType());
+            assertEquals(i, boxedSymbol.get().getNumKind());
+        }
     }
 
     @Test
