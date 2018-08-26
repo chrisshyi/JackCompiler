@@ -1,5 +1,6 @@
 package main;
 
+import org.junit.jupiter.api.Test;
 import symbol.Symbol;
 import symbol.SymbolKind;
 import symboltable.ClassSymbolTable;
@@ -342,18 +343,25 @@ public class Parser {
      */
     public String compileLetStatement() {
         StringBuilder sb = new StringBuilder();
-        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // varName
+        String varName = tokenizer.getNextToken(); // varName
+        Symbol variable = lookUpSymbol(varName);
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals("[")) {
-            sb.append(formatFromTemplate("symbol", nextToken));
+            sb.append(codeGenerator.generatePush(getSymbolMemSeg(variable), variable.getNumKind()));
             sb.append(compileExpression());
-            sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ]
-            nextToken = tokenizer.getNextToken();
+            sb.append(codeGenerator.generateArithLogical("+"));
+            tokenizer.getNextToken(); // ]
+            tokenizer.getNextToken(); // =
+            sb.append(compileExpression());
+            sb.append(codeGenerator.generatePop(MemorySegment.TEMP, 0)); // store value of expression
+            sb.append(codeGenerator.generatePop(MemorySegment.POINTER, 1)); // align THAT
+            sb.append(codeGenerator.generatePush(MemorySegment.TEMP, 0));
+            sb.append(codeGenerator.generatePop(MemorySegment.THAT, 0));
+        } else {
+            sb.append(compileExpression());
+            sb.append(codeGenerator.generatePop(getSymbolMemSeg(variable), variable.getNumKind()));
         }
-        sb.append(formatFromTemplate("symbol", nextToken)); // =
-        sb.append(compileExpression());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // ;
-        sb.append("</letStatement>\n");
+        tokenizer.getNextToken(); // ;
         return sb.toString();
     }
 

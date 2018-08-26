@@ -1,0 +1,1 @@
+var1[counter + 5] = arr[a / b];

@@ -230,45 +230,70 @@ class ParserTest {
     @Test
     void testLetStatementNoExp() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_let_statement_no_exp.txt"));
-        String expected = "<identifier>var1</identifier>\n" +
-                "<symbol>=</symbol>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                    "<identifier>a</identifier>\n" +
-                "</term>\n" +
-                "<symbol>/</symbol>\n" +
-                "<term>\n" +
-                    "<identifier>b</identifier>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>;</symbol>\n" +
-                "</letStatement>\n";
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        classST.define("var1", "int", SymbolKind.FIELD);
+        subroutineST.define("a", "int", SymbolKind.LOCAL);
+        subroutineST.define("b", "int", SymbolKind.LOCAL);
+        String expected = "push local 0\n" +
+                "push local 1\n" +
+                "call Math.divide 2\n" +
+                "pop this 0\n";
         Assertions.assertEquals(expected, parser.compileLetStatement());
     }
 
     @Test
     void testLetStatementExp() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_let_statement_exp.txt"));
-        String expected = "<identifier>var1</identifier>\n" +
-                "<symbol>[</symbol>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                        "<identifier>counter</identifier>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>]</symbol>\n" +
-                "<symbol>=</symbol>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                    "<identifier>a</identifier>\n" +
-                    "</term>\n" +
-                "<symbol>/</symbol>\n" +
-                    "<term>\n" +
-                    "<identifier>b</identifier>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>;</symbol>\n" +
-                "</letStatement>\n";
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+
+        classST.define("var1", "Array", SymbolKind.FIELD);
+        subroutineST.define("counter", "int", SymbolKind.LOCAL);
+        subroutineST.define("a", "int", SymbolKind.LOCAL);
+        subroutineST.define("b", "int", SymbolKind.LOCAL);
+
+        String expected = "push this 0\n" +
+                "push local 0\n" +
+                "add\n" +
+                "push local 1\n" +
+                "push local 2\n" +
+                "call Math.divide 2\n" +
+                "pop temp 0\n" +
+                "pop pointer 1\n" +
+                "push temp 0\n" +
+                "pop that 0\n";
+        Assertions.assertEquals(expected, parser.compileLetStatement());
+    }
+
+    @Test
+    void testLetStatementArrayBothSides() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_let_statement_array_both_sides.txt"));
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+
+        classST.define("var1", "Array", SymbolKind.FIELD);
+        classST.define("arr", "Array", SymbolKind.STATIC);
+        subroutineST.define("counter", "int", SymbolKind.LOCAL);
+        subroutineST.define("a", "int", SymbolKind.LOCAL);
+        subroutineST.define("b", "int", SymbolKind.LOCAL);
+
+        String expected = "push this 0\n" +
+                "push local 0\n" + // counter
+                "push constant 5\n" +
+                "add\n" +
+                "add\n" +
+                "push static 0\n" +
+                "push local 1\n" +
+                "push local 2\n" +
+                "call Math.divide 2\n" +
+                "add\n" +
+                "pop pointer 1\n" +
+                "push that 0\n" +
+                "pop temp 0\n" +
+                "pop pointer 1\n" +
+                "push temp 0\n" +
+                "pop that 0\n";
         Assertions.assertEquals(expected, parser.compileLetStatement());
     }
 
