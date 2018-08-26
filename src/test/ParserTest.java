@@ -2,6 +2,7 @@ package test;
 
 import main.ExpressionList;
 import main.Parser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -1138,5 +1139,32 @@ class ParserTest {
                 "push argument 0\n" +
                 "call SomeClass.some_method 4\n";
         assertEquals(expected, parser.compileTerm());
+    }
+
+    @Test
+    void testWhileStatement() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_while_statement.txt"));
+        parser.setCurrentClassName("SomeClass");
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+
+        subroutineST.define("myObj", "Object", SymbolKind.LOCAL);
+        classST.define("a", "boolean", SymbolKind.STATIC);
+        subroutineST.define("b", "boolean", SymbolKind.ARGUMENT);
+
+        String expected = "label LBL_0\n" +
+                "push local 0\n" +
+                "push static 0\n" +
+                "push argument 0\n" +
+                "and\n" +
+                "call Object.check 2\n" +
+                "not\n" +
+                "if-goto LBL_1\n" +
+                "push pointer 0\n" +
+                "call SomeClass.something 1\n" +
+                "pop temp 0\n" +
+                "goto LBL_0\n" +
+                "label LBL_1\n";
+        assertEquals(expected, parser.compileWhileStatement());
     }
 }

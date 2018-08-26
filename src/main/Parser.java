@@ -397,13 +397,22 @@ public class Parser {
      */
     public String compileWhileStatement() {
         StringBuilder sb = new StringBuilder();
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // (
+        tokenizer.getNextToken(); // (
+        // store the label numbers
+        int labelOne = numLabels;
+        numLabels++;
+        int labelTwo = numLabels;
+        numLabels++;
+        sb.append(codeGenerator.generateLabel("LBL_" + labelOne));
         sb.append(compileExpression());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // )
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
+        sb.append(codeGenerator.generateUnaryOp("~")); // negate the expression
+        tokenizer.getNextToken(); // )
+        tokenizer.getNextToken(); // {
+        sb.append(codeGenerator.generateIfGOTO("LBL_" + labelTwo));
         sb.append(compileStatements());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // }
-        sb.append("</whileStatement>\n");
+        sb.append(codeGenerator.generateGOTO("LBL_" + labelOne));
+        tokenizer.getNextToken(); // }
+        sb.append(codeGenerator.generateLabel("LBL_" + labelTwo));
         return sb.toString();
     }
 
