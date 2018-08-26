@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * Works in tandem with a main.Tokenizer object to generate a parsetree
  */
 public class Parser {
-    //TODO: need to handle void subroutine definition and calling
+
     private Tokenizer tokenizer;
     private String outputFilePath;
     private SubroutineSymbolTable subroutineST;
@@ -45,8 +45,6 @@ public class Parser {
             "*", "/", "&", "|", "<", ">", "="));
     private final Pattern intConstPattern = Pattern.compile("\\d+");
     private final Pattern stringConstPattern = Pattern.compile("\".+\"");
-    private final Pattern identifierPattern = Pattern.compile("\\D[\\w_]+");
-
     private final String terminalTemplate = "<%1$s>%2$s</%1$s>\n";
 
     public Parser(File inputFile) throws IOException {
@@ -104,34 +102,25 @@ public class Parser {
         this.currentClassName = className;
     }
     /**
-     * Compiles the XML representation of a parameter list, including the parentheses
-     * @return the XML representation of a parameter list, including the parentheses
+     * Compiles the VM code for a parameter list, including the parentheses
      */
-    public String compileParamList() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // the opening (
-        sb.append("<parameterList>\n");
+    public void compileParamList() {
+        tokenizer.getNextToken(); // the opening (
         String nextToken = tokenizer.getNextToken();
-        if (nextToken.equals(")")) { // )
-            sb.append("</parameterList>\n");
-            sb.append(formatFromTemplate("symbol", nextToken));
-            return sb.toString();
+        if (nextToken.equals(")")) { // ), empty param list
+            return;
         }
         // first variable declaration
         String varType = nextToken;
-        String variable = tokenizer.getNextToken();
-        sb.append(compileTypeAndVar(varType, variable));
+        String varName = tokenizer.getNextToken();
+        subroutineST.define(varName, varType, SymbolKind.ARGUMENT);
         nextToken = tokenizer.getNextToken();
         while (nextToken.equals(",")) {
-            sb.append(formatFromTemplate("symbol", nextToken)); // the comma
             varType = tokenizer.getNextToken();
-            variable = tokenizer.getNextToken();
-            sb.append(compileTypeAndVar(varType, variable));
+            varName = tokenizer.getNextToken();
+            subroutineST.define(varName, varType, SymbolKind.ARGUMENT);
             nextToken = tokenizer.getNextToken();
         }
-        sb.append("</parameterList>\n");
-        sb.append(formatFromTemplate("symbol", nextToken)); // closing )
-        return sb.toString();
     }
 
     /**
@@ -502,7 +491,6 @@ public class Parser {
 
     /**
      * Compiles the declaration of local variables into VM code
-     * @return the VM code of local variable declaration
      */
     public void compileVarDec() {
         tokenizer.getNextToken(); // var
@@ -552,7 +540,7 @@ public class Parser {
             sb.append(formatFromTemplate("identifier", nextToken));
         }
         sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // subroutine name
-        sb.append(compileParamList());
+        compileParamList();
         sb.append(compileSubroutineBody());
         sb.append("</subroutineDec>\n");
         return sb.toString();

@@ -54,35 +54,31 @@ class ParserTest {
     @Test
     void testParamListOne() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_param_list_one.txt"));
-        // tests the declaration of a single variable
-        String expected = "<symbol>(</symbol>\n" +
-                "<parameterList>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>x</identifier>\n" +
-                "</parameterList>\n" +
-                "<symbol>)</symbol>\n";
-        Assertions.assertEquals(expected, parser.compileParamList());
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        parser.compileParamList();
+
+        Optional<Symbol> boxedSymbol = subroutineST.lookUp("x");
+        assertTrue(boxedSymbol.isPresent());
+        assertEquals("int", boxedSymbol.get().getDataType());
+        assertEquals(0, boxedSymbol.get().getNumKind());
     }
 
     @Test
     void testParamListMultiple() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_param_list_mult.txt"));
-        // tests the declaration of a single variable
-        String expected = "<symbol>(</symbol>\n" + "<parameterList>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>x</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>String</identifier>\n" +
-                "<identifier>y</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>MyClass</identifier>\n" +
-                "<identifier>z</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>myInt</identifier>\n" +
-                "</parameterList>\n" +
-                "<symbol>)</symbol>\n";
-        Assertions.assertEquals(expected, parser.compileParamList());
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        parser.compileParamList();
+
+        String[] varNames = {"x", "y", "z", "myInt"};
+        for (int i = 0; i < varNames.length; i++) {
+            assertTrue(subroutineST.hasSymbol(varNames[i]));
+            assertEquals(SymbolKind.ARGUMENT, subroutineST.lookUp(varNames[i]).get().getSymbolKind());
+            assertEquals(i, subroutineST.lookUp(varNames[i]).get().getNumKind());
+        }
+        assertEquals("String", subroutineST.lookUp("y").get().getDataType());
+        assertEquals("int", subroutineST.lookUp("x").get().getDataType());
+        assertEquals("MyClass", subroutineST.lookUp("z").get().getDataType());
+        assertEquals("int", subroutineST.lookUp("myInt").get().getDataType());
     }
 
     @Test
@@ -1066,7 +1062,7 @@ class ParserTest {
                 "<parameterList>\n" +
                 "</parameterList>\n" +
                 "<symbol>)</symbol>\n";
-        Assertions.assertEquals(expected, parser.compileParamList());
+
     }
 
     @Test
