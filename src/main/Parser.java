@@ -441,6 +441,7 @@ public class Parser {
         StringBuilder sb = new StringBuilder();
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals(";")) {
+            sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, 0));
             sb.append("return\n");
             return sb.toString();
         } else {
