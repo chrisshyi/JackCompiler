@@ -1117,9 +1117,42 @@ class ParserTest {
     @Test
     void testStringConstantWithSymbols1() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_string_const_symbol_1.txt"));
-        String expected = "<term>\n" +
-                "<stringConstant>ENTER YOUR NAME: </stringConstant>\n" +
-                "</term>\n";
+        String expected = "push constant 17\n" +
+                "call String.new 1\n" +
+                "push constant 69\n" +
+                "call String.appendChar 2\n" +
+                "push constant 78\n" +
+                "call String.appendChar 2\n" +
+                "push constant 84\n" +
+                "call String.appendChar 2\n" +
+                "push constant 69\n" +
+                "call String.appendChar 2\n" +
+                "push constant 82\n" +
+                "call String.appendChar 2\n" +
+                "push constant 32\n" +
+                "call String.appendChar 2\n" +
+                "push constant 89\n" +
+                "call String.appendChar 2\n" +
+                "push constant 79\n" +
+                "call String.appendChar 2\n" +
+                "push constant 85\n" +
+                "call String.appendChar 2\n" +
+                "push constant 82\n" +
+                "call String.appendChar 2\n" +
+                "push constant 32\n" +
+                "call String.appendChar 2\n" +
+                "push constant 78\n" +
+                "call String.appendChar 2\n" +
+                "push constant 65\n" +
+                "call String.appendChar 2\n" +
+                "push constant 77\n" +
+                "call String.appendChar 2\n" +
+                "push constant 69\n" +
+                "call String.appendChar 2\n" +
+                "push constant 58\n" +
+                "call String.appendChar 2\n" +
+                "push constant 32\n" +
+                "call String.appendChar 2\n";
         Assertions.assertEquals(expected, parser.compileTerm());
     }
 
