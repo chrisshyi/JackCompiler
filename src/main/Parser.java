@@ -427,12 +427,14 @@ public class Parser {
         StringBuilder sb = new StringBuilder();
         String nextToken = tokenizer.getNextToken();
         if (nextToken.equals(";")) {
+            sb.append("return\n");
             return sb.toString();
         } else {
             tokenizer.backTrack();
             sb.append(compileExpression());
             tokenizer.getNextToken(); // ;
         }
+        sb.append("return\n");
         return sb.toString();
     }
 
@@ -443,17 +445,13 @@ public class Parser {
      */
     public String compileStatements() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<statements>\n");
         String nextToken = tokenizer.getNextToken();
         Set<String> possibleStatements = new HashSet<>(Arrays.asList("let", "if",
                 "while", "do", "return"));
         if (!possibleStatements.contains(nextToken)) {
             tokenizer.backTrack();
-            sb.append("</statements>\n");
             return "";
         }
-        sb.append(String.format("<%sStatement>\n", nextToken));
-        sb.append(formatFromTemplate("keyword", nextToken));
         // use reflection to call the appropriate statement compilation method
         String methodName = "compile" + nextToken.substring(0, 1).toUpperCase() + nextToken.substring(1) + "Statement";
         try {
@@ -461,8 +459,6 @@ public class Parser {
             while (tokenizer.hasNextToken()) {
                 nextToken = tokenizer.getNextToken();
                 if (possibleStatements.contains(nextToken)) {
-                    sb.append(String.format("<%sStatement>\n", nextToken));
-                    sb.append(formatFromTemplate("keyword", nextToken));
                     // use reflection to call the appropriate statement compilation method
                     methodName = "compile" + nextToken.substring(0, 1).toUpperCase() + nextToken.substring(1) + "Statement";
                     try {
@@ -478,7 +474,6 @@ public class Parser {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        sb.append("</statements>\n");
         return sb.toString();
     }
 

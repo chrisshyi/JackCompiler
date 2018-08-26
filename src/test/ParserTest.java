@@ -274,95 +274,52 @@ class ParserTest {
     @Test
     void testIfStatementNoElse() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_if_statement_no_else.txt"));
-        String expected = "<symbol>(</symbol>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                        "<identifier>a</identifier>\n" +
-                    "</term>\n" +
-                    "<symbol>&lt;</symbol>\n" +
-                    "<term>\n" +
-                        "<identifier>myVar</identifier>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>{</symbol>\n" +
-                "<statements>\n" +
-                    "<returnStatement>\n" +
-                        "<keyword>return</keyword>\n" +
-                        "<expression>\n" +
-                            "<term>\n" +
-                                "<identifier>a</identifier>\n" +
-                            "</term>\n" +
-                            "<symbol>+</symbol>\n" +
-                            "<term>\n" +
-                                "<integerConstant>1</integerConstant>\n" +
-                            "</term>\n" +
-                        "</expression>\n" +
-                        "<symbol>;</symbol>\n" +
-                    "</returnStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "</ifStatement>\n";
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        ClassSymbolTable classST = parser.getClassST();
+        subroutineST.define("a", "int", SymbolKind.LOCAL);
+        subroutineST.define("myVar", "int", SymbolKind.LOCAL);
+
+        String expected = "push local 0\n" +
+                "push local 1\n" +
+                "lt\n" +
+                "not\n" +
+                "if-goto LBL_0\n" +
+                "push local 0\n" +
+                "push constant 1\n" +
+                "add\n" +
+                "return\n" +
+                "goto LBL_1\n" +
+                "label LBL_0\n" +
+                "label LBL_1\n";
         Assertions.assertEquals(expected, parser.compileIfStatement());
     }
 
     @Test
     void testIfStatementWithElse() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_if_statement_with_else.txt"));
-        String expected = "<symbol>(</symbol>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<identifier>a</identifier>\n" +
-                "</term>\n" +
-                "<symbol>&lt;</symbol>\n" +
-                "<term>\n" +
-                "<identifier>myVar</identifier>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>{</symbol>\n" +
-                "<statements>\n" +
-                "<returnStatement>\n" +
-                "<keyword>return</keyword>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<identifier>a</identifier>\n" +
-                "</term>\n" +
-                "<symbol>+</symbol>\n" +
-                "<term>\n" +
-                "<integerConstant>1</integerConstant>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>;</symbol>\n" +
-                "</returnStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "<keyword>else</keyword>\n" +
-                "<symbol>{</symbol>\n" +
-                "<statements>\n" +
-                    "<doStatement>\n" +
-                        "<keyword>do</keyword>\n" +
-                        "<identifier>subroutine</identifier>\n" +
-                        "<symbol>.</symbol>\n" +
-                        "<identifier>call</identifier>\n" +
-                        "<symbol>(</symbol>\n" +
-                            "<expressionList>\n" +
-                            "</expressionList>\n" +
-                        "<symbol>)</symbol>\n" +
-                        "<symbol>;</symbol>\n" +
-                    "</doStatement>\n" +
-                    "<returnStatement>\n" +
-                        "<keyword>return</keyword>\n" +
-                        "<expression>\n" +
-                            "<term>\n" +
-                                "<integerConstant>10</integerConstant>\n" +
-                            "</term>\n" +
-                        "</expression>\n" +
-                        "<symbol>;</symbol>\n" +
-                    "</returnStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "</ifStatement>\n";
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        ClassSymbolTable classST = parser.getClassST();
+        subroutineST.define("a", "int", SymbolKind.LOCAL);
+        subroutineST.define("myVar", "int", SymbolKind.LOCAL);
+
+        parser.setCurrentClassName("SomeClass");
+        String expected = "push local 0\n" +
+                "push local 1\n" +
+                "lt\n" +
+                "not\n" +
+                "if-goto LBL_0\n" +
+                "push local 0\n" +
+                "push constant 1\n" +
+                "add\n" +
+                "return\n" +
+                "goto LBL_1\n" +
+                "label LBL_0\n" +
+                "push pointer 0\n" +
+                "call SomeClass.subroutine_call 1\n" +
+                "pop temp 0\n" +
+                "push constant 10\n" +
+                "return\n" +
+                "label LBL_1\n";
         Assertions.assertEquals(expected, parser.compileIfStatement());
     }
 

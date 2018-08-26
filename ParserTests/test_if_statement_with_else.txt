@@ -1,6 +1,6 @@
 (a < myVar) {
     return a + 1;
 } else {
-    do subroutine.call();
+    do subroutine_call();
     return 10;
 }
