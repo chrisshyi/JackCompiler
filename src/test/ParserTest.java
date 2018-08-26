@@ -203,24 +203,19 @@ class ParserTest {
     @Test
     void testReturnStatement() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_return_statement.txt"));
-        String expected = "<expression>\n" +
-                "<term>\n" +
-                    "<identifier>myArr</identifier>\n" +
-                    "<symbol>[</symbol>\n" +
-                    "<expression>\n" +
-                    "<term>\n" +
-                        "<identifier>a</identifier>\n" +
-                    "</term>\n" +
-                    "<symbol>+</symbol>\n" +
-                    "<term>\n" +
-                        "<identifier>b</identifier>\n" +
-                    "</term>\n" +
-                    "</expression>\n" +
-                    "<symbol>]</symbol>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>;</symbol>\n" +
-                "</returnStatement>\n";
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        subroutineST.define("myArr", "Array", SymbolKind.LOCAL);
+        subroutineST.define("a", "int", SymbolKind.ARGUMENT);
+        subroutineST.define("b", "int", SymbolKind.ARGUMENT);
+
+        String expected = "push local 0\n" +
+                "push argument 0\n" +
+                "push argument 1\n" +
+                "add\n" +
+                "add\n" +
+                "pop pointer 1\n" +
+                "push that 0\n" +
+                "return\n";
         Assertions.assertEquals(expected, parser.compileReturnStatement());
     }
 
