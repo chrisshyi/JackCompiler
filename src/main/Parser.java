@@ -22,6 +22,11 @@ public class Parser {
     private String outputFilePath;
     private SubroutineSymbolTable subroutineST;
     private ClassSymbolTable classST;
+
+    public static int getNumLabels() {
+        return numLabels;
+    }
+
     private CodeGenerator codeGenerator;
     private String currentClassName = ""; // name of the class being compiled
     private static int numLabels = 0; // enumerated to keep labels unique

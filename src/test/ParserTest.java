@@ -280,19 +280,22 @@ class ParserTest {
         subroutineST.define("a", "int", SymbolKind.LOCAL);
         subroutineST.define("myVar", "int", SymbolKind.LOCAL);
 
+        String parsed = parser.compileIfStatement();
+        int currNumLabel = Parser.getNumLabels();
         String expected = "push local 0\n" +
                 "push local 1\n" +
                 "lt\n" +
                 "not\n" +
-                "if-goto LBL_0\n" +
+                String.format("if-goto LBL_%d\n", currNumLabel - 2) +
                 "push local 0\n" +
                 "push constant 1\n" +
                 "add\n" +
                 "return\n" +
-                "goto LBL_1\n" +
-                "label LBL_0\n" +
-                "label LBL_1\n";
-        Assertions.assertEquals(expected, parser.compileIfStatement());
+                String.format("goto LBL_%d\n", currNumLabel - 1) +
+                String.format("label LBL_%d\n", currNumLabel - 2) +
+                String.format("label LBL_%d\n", currNumLabel - 1);
+
+        Assertions.assertEquals(expected, parsed);
     }
 
     @Test
@@ -304,24 +307,26 @@ class ParserTest {
         subroutineST.define("myVar", "int", SymbolKind.LOCAL);
 
         parser.setCurrentClassName("SomeClass");
+        String parsed = parser.compileIfStatement();
+        int currNumLabel = Parser.getNumLabels();
         String expected = "push local 0\n" +
                 "push local 1\n" +
                 "lt\n" +
                 "not\n" +
-                "if-goto LBL_0\n" +
+                String.format("if-goto LBL_%d\n", currNumLabel - 2) +
                 "push local 0\n" +
                 "push constant 1\n" +
                 "add\n" +
                 "return\n" +
-                "goto LBL_1\n" +
-                "label LBL_0\n" +
+                String.format("goto LBL_%d\n", currNumLabel - 1) +
+                String.format("label LBL_%d\n", currNumLabel - 2) +
                 "push pointer 0\n" +
                 "call SomeClass.subroutine_call 1\n" +
                 "pop temp 0\n" +
                 "push constant 10\n" +
                 "return\n" +
-                "label LBL_1\n";
-        Assertions.assertEquals(expected, parser.compileIfStatement());
+                String.format("label LBL_%d\n", currNumLabel - 1);
+        Assertions.assertEquals(expected, parsed);
     }
 
     @Test
@@ -1152,19 +1157,21 @@ class ParserTest {
         classST.define("a", "boolean", SymbolKind.STATIC);
         subroutineST.define("b", "boolean", SymbolKind.ARGUMENT);
 
-        String expected = "label LBL_0\n" +
+        String parsed = parser.compileWhileStatement();
+        int numLabels = Parser.getNumLabels();
+        String expected = String.format("label LBL_%d\n", numLabels - 2) +
                 "push local 0\n" +
                 "push static 0\n" +
                 "push argument 0\n" +
                 "and\n" +
                 "call Object.check 2\n" +
                 "not\n" +
-                "if-goto LBL_1\n" +
+                String.format("if-goto LBL_%d\n", numLabels - 1) +
                 "push pointer 0\n" +
                 "call SomeClass.something 1\n" +
                 "pop temp 0\n" +
-                "goto LBL_0\n" +
-                "label LBL_1\n";
-        assertEquals(expected, parser.compileWhileStatement());
+                String.format("goto LBL_0\n", numLabels - 2) +
+                String.format("label LBL_%d\n", numLabels - 1);
+        assertEquals(expected, parsed);
     }
 }
