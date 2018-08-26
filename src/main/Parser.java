@@ -504,8 +504,7 @@ public class Parser {
      * Compiles the declaration of local variables into VM code
      * @return the VM code of local variable declaration
      */
-    public String compileVarDec() {
-        StringBuilder sb = new StringBuilder();
+    public void compileVarDec() {
         tokenizer.getNextToken(); // var
         String varType = tokenizer.getNextToken(); // type
         String varName = tokenizer.getNextToken();
@@ -516,7 +515,6 @@ public class Parser {
             subroutineST.define(varName, varType, SymbolKind.LOCAL);
             nextToken = tokenizer.getNextToken();
         }
-        return sb.toString();
     }
 
     /**
@@ -525,18 +523,16 @@ public class Parser {
      */
     public String compileSubroutineBody() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<subroutineBody>\n");
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
+        tokenizer.getNextToken(); // {
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals("var")) {
             tokenizer.backTrack();
-            sb.append(compileVarDec());
+            compileVarDec();
             nextToken = tokenizer.getNextToken();
         }
         tokenizer.backTrack();
         sb.append(compileStatements());
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken()));
-        sb.append("</subroutineBody>\n");
+        tokenizer.getNextToken(); // }
         return sb.toString();
     }
 
@@ -602,7 +598,7 @@ public class Parser {
     }
 
     /**
-     * Retrives the corresponding MemorySegment of a Symbol
+     * Retrieves the corresponding MemorySegment of a Symbol
      * @param symbol a Symbol object
      * @return the corresponding MemorySegment of a Symbol
      */
