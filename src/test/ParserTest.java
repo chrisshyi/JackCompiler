@@ -678,145 +678,81 @@ class ParserTest {
     @Test
     void testClassDecWithClassVar() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_dec_with_class_var.txt"));
-        String expected = "<class>\n" +
-                "<keyword>class</keyword>\n" +
-                "<identifier>MyClass</identifier>\n" +
-                "<symbol>{</symbol>\n" +
-                "<classVarDec>\n" +
-                "<keyword>static</keyword>\n" +
-                "<identifier>String</identifier>\n" +
-                "<identifier>myStr1</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>myStr2</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>myStr3</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</classVarDec>\n" +
-                "<classVarDec>\n" +
-                "<keyword>field</keyword>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>myInt</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</classVarDec>\n" +
-                "<subroutineDec>\n" +
-                "<keyword>function</keyword>\n" +
-                "<identifier>MyClass</identifier>\n" +
-                "<identifier>myFunc</identifier>\n" +
-                "<symbol>(</symbol>\n" +
-                "<parameterList>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>num1</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>String</identifier>\n" +
-                "<identifier>str1</identifier>\n" +
-                "</parameterList>\n" +
-                "<symbol>)</symbol>\n" +
-                "<subroutineBody>\n" +
-                "<symbol>{</symbol>\n" +
-                "<varDec>\n" +
-                "<keyword>var</keyword>\n" +
-                "<identifier>MyClass</identifier>\n" +
-                "<identifier>obj1</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>obj2</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>obj3</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</varDec>\n" +
-                "<statements>\n" +
-                "<ifStatement>\n" +
-                "<keyword>if</keyword>\n" +
-                "<symbol>(</symbol>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<identifier>myInt</identifier>\n" +
-                "</term>\n" +
-                "<symbol>=</symbol>\n" +
-                "<term>\n" +
-                "<integerConstant>10</integerConstant>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>{</symbol>\n" +
-                "<statements>\n" +
-                "<doStatement>\n" +
-                "<keyword>do</keyword>\n" +
-                "<identifier>myMethod</identifier>\n" +
-                "<symbol>(</symbol>\n" +
-                "<expressionList>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<stringConstant>test</stringConstant>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>,</symbol>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<integerConstant>20</integerConstant>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "</expressionList>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>;</symbol>\n" +
-                "</doStatement>\n" +
-                "<letStatement>\n" +
-                "<keyword>let</keyword>\n" +
-                "<identifier>myVar</identifier>\n" +
-                "<symbol>=</symbol>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<stringConstant>hello</stringConstant>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>;</symbol>\n" +
-                "</letStatement>\n" +
-                "<returnStatement>\n" +
-                "<keyword>return</keyword>\n" +
-                "<expression>\n" +
-                "<term>\n" +
-                "<identifier>myVar</identifier>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>;</symbol>\n" +
-                "</returnStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "</ifStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "</subroutineBody>\n" +
-                "</subroutineDec>\n" +
-                "<symbol>}</symbol>\n" +
-                "</class>\n";
-        Assertions.assertEquals(expected, parser.compileClass());
+        String parsed = parser.compileClass();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        ClassSymbolTable classST = parser.getClassST();
+        int numLabels = Parser.getNumLabels();
+        String expected = "function MyClass.myFunc 3\n" +
+                "push argument 0\n" +
+                "push constant 10\n" +
+                "eq\n" +
+                "not\n" +
+                String.format("if-goto LBL_%d\n", numLabels - 2) +
+                "push pointer 0\n" +
+                "push constant 4\n" + // "test" string literal
+                "call String.new 1\n" +
+                "push constant 116\n" +
+                "call String.appendChar 2\n" +
+                "push constant 101\n" +
+                "call String.appendChar 2\n" +
+                "push constant 115\n" +
+                "call String.appendChar 2\n" +
+                "push constant 116\n" +
+                "call String.appendChar 2\n" +
+                "push constant 20\n" +
+                "call MyClass.myMethod 3\n" +
+                "pop temp 0\n" + // pop for void method
+                "push argument 0\n" +
+                "return\n" +
+                String.format("goto LBL_%d\n", numLabels - 1) +
+                String.format("label LBL_%d\n", numLabels - 2) +
+                String.format("label LBL_%d\n", numLabels - 1);
+
+        assertEquals(0, subroutineST.lookUp("num1").get().getNumKind());
+        assertEquals(SymbolKind.ARGUMENT, subroutineST.lookUp("num1").get().getSymbolKind());
+
+        assertEquals(1, subroutineST.lookUp("str1").get().getNumKind());
+        assertEquals(SymbolKind.ARGUMENT, subroutineST.lookUp("str1").get().getSymbolKind());
+        String[] varNames = {"obj1", "obj2", "obj3"};
+        for (int i = 0; i < varNames.length; i++) {
+            Optional<Symbol> boxedSymbol = subroutineST.lookUp(varNames[i]);
+            assertTrue(boxedSymbol.isPresent());
+            assertEquals("MyClass", boxedSymbol.get().getDataType());
+            assertEquals(i, boxedSymbol.get().getNumKind());
+        }
+        String[] varNames2 = {"myStr1", "myStr2", "myStr3"};
+        for (int i = 0; i < varNames2.length; i++) {
+            Optional<Symbol> boxedSymbol = classST.lookUp(varNames2[i]);
+            assertTrue(boxedSymbol.isPresent());
+            assertEquals(SymbolKind.STATIC, boxedSymbol.get().getSymbolKind());
+            assertEquals(i, boxedSymbol.get().getNumKind());
+            assertEquals("String", boxedSymbol.get().getDataType());
+        }
+        Optional<Symbol> boxedSymbol = classST.lookUp("myInt");
+        assertTrue(boxedSymbol.isPresent());
+        assertEquals(SymbolKind.FIELD, boxedSymbol.get().getSymbolKind());
+        assertEquals("int", boxedSymbol.get().getDataType());
+        Assertions.assertEquals(expected, parsed);
     }
 
     @Test
     void testClassDecNoSubroutine() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_dec_no_subroutine.txt"));
-        String expected = "<class>\n" +
-                "<keyword>class</keyword>\n" +
-                "<identifier>MyClass</identifier>\n" +
-                "<symbol>{</symbol>\n" +
-                "<classVarDec>\n" +
-                "<keyword>static</keyword>\n" +
-                "<identifier>String</identifier>\n" +
-                "<identifier>myStr1</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>myStr2</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>myStr3</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</classVarDec>\n" +
-                "<classVarDec>\n" +
-                "<keyword>field</keyword>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>myInt</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</classVarDec>\n" +
-                "<symbol>}</symbol>\n" +
-                "</class>\n";
-        Assertions.assertEquals(expected, parser.compileClass());
+        String parsed = parser.compileClass();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        ClassSymbolTable classST = parser.getClassST();
+        String[] varNames2 = {"myStr1", "myStr2", "myStr3"};
+        for (int i = 0; i < varNames2.length; i++) {
+            Optional<Symbol> boxedSymbol = classST.lookUp(varNames2[i]);
+            assertTrue(boxedSymbol.isPresent());
+            assertEquals(SymbolKind.STATIC, boxedSymbol.get().getSymbolKind());
+            assertEquals(i, boxedSymbol.get().getNumKind());
+            assertEquals("String", boxedSymbol.get().getDataType());
+        }
+        Optional<Symbol> boxedSymbol = classST.lookUp("myInt");
+        assertTrue(boxedSymbol.isPresent());
+        assertEquals(SymbolKind.FIELD, boxedSymbol.get().getSymbolKind());
+        assertEquals("int", boxedSymbol.get().getDataType());
     }
 
     @Test
