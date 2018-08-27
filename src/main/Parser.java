@@ -543,7 +543,7 @@ public class Parser {
         SubroutineBody compiledSB = compileSubroutineBody();
         sb.append(String.format("function %s %d\n", subroutineName, compiledSB.getNumLocals()));
         if (subroutineType.equals("constructor")) {
-            sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, compiledSB.getNumLocals()));
+            sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, classST.getFieldVarCount()));
             sb.append("call Memory.alloc 1\n" +
                     "pop pointer 0\n");
         } else if (subroutineType.equals("method")) {

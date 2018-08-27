@@ -1,4 +1,4 @@
-function MyClass myFunc(int num1, String str1)
+method String myMethod(int num1, String str1)
 {
     var MyClass obj1, obj2, obj3;
     if (myInt = 10) {

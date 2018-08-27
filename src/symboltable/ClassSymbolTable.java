@@ -21,4 +21,8 @@ public class ClassSymbolTable extends SymbolTable {
                 break;
         }
     }
+
+    public int getFieldVarCount() {
+        return fieldVarCount;
+    }
 }
