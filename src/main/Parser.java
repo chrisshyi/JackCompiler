@@ -158,9 +158,9 @@ public class Parser {
         String nextToken = tokenizer.getNextToken();
         Matcher intConstantMatcher = intConstPattern.matcher(nextToken);
         Matcher strConstantMatcher = stringConstPattern.matcher(nextToken);
-        if (intConstantMatcher.find()) { // integer constant
+        if (intConstantMatcher.matches()) { // integer constant
             sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, Integer.parseInt(nextToken)));
-        } else if (strConstantMatcher.find()) { // string constant, need to strip off quotes
+        } else if (strConstantMatcher.matches()) { // string constant, need to strip off quotes
             sb.append(codeGenerator.generateStringLiteral(nextToken.replaceAll("\"", "")));
         } else if (keyWordConstantSet.contains(nextToken)) { // keyword constant
             sb.append(codeGenerator.generateKeywordConstant(nextToken));
