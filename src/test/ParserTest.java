@@ -349,67 +349,52 @@ class ParserTest {
     @Test
     void testStatements1() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_statements_1.txt"));
-        String expected = "<statements>\n" +
-                "<ifStatement>\n" +
-                    "<keyword>if</keyword>\n" +
-                    "<symbol>(</symbol>\n" +
-                        "<expression>\n" +
-                        "<term>\n" +
-                            "<identifier>myInt</identifier>\n" +
-                        "</term>\n" +
-                        "<symbol>=</symbol>\n" +
-                        "<term>\n" +
-                            "<integerConstant>10</integerConstant>\n" +
-                        "</term>\n" +
-                        "</expression>\n" +
-                    "<symbol>)</symbol>\n" +
-                    "<symbol>{</symbol>\n" +
-                    "<statements>\n" +
-                    "<doStatement>\n" +
-                        "<keyword>do</keyword>\n" +
-                        "<identifier>myMethod</identifier>\n" +
-                        "<symbol>(</symbol>\n" +
-                        "<expressionList>\n" +
-                            "<expression>\n" +
-                            "<term>\n" +
-                                "<stringConstant>test</stringConstant>\n" +
-                            "</term>\n" +
-                            "</expression>\n" +
-                            "<symbol>,</symbol>\n" +
-                            "<expression>\n" +
-                            "<term>\n" +
-                                "<integerConstant>20</integerConstant>\n" +
-                            "</term>\n" +
-                            "</expression>\n" +
-                        "</expressionList>\n" +
-                        "<symbol>)</symbol>\n" +
-                        "<symbol>;</symbol>\n" +
-                "</doStatement>\n" +
-                "<letStatement>\n" +
-                    "<keyword>let</keyword>\n" +
-                    "<identifier>myVar</identifier>\n" +
-                    "<symbol>=</symbol>\n" +
-                    "<expression>\n" +
-                    "<term>\n" +
-                        "<stringConstant>hello</stringConstant>\n" +
-                    "</term>\n" +
-                    "</expression>\n" +
-                    "<symbol>;</symbol>\n" +
-                "</letStatement>\n" +
-                "<returnStatement>\n" +
-                    "<keyword>return</keyword>\n" +
-                    "<expression>\n" +
-                    "<term>\n" +
-                        "<identifier>myVar</identifier>\n" +
-                    "</term>\n" +
-                    "</expression>\n" +
-                    "<symbol>;</symbol>\n" +
-                "</returnStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "</ifStatement>\n" +
-                "</statements>\n";
-                Assertions.assertEquals(expected, parser.compileStatements());
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        ClassSymbolTable classST = parser.getClassST();
+        parser.setCurrentClassName("MyClass");
+
+        classST.define("myInt", "int", SymbolKind.FIELD);
+        subroutineST.define("myVar", "String", SymbolKind.LOCAL);
+        String parsed = parser.compileStatements();
+        int numLabels = Parser.getNumLabels();
+        String expected = "push this 0\n" +
+                "push constant 10\n" +
+                "eq\n" +
+                "not\n" +
+                String.format("if-goto LBL_%d\n", numLabels - 2) +
+                "push pointer 0\n" +
+                "push constant 4\n" + // "test" string literal
+                "call String.new 1\n" +
+                "push constant 116\n" +
+                "call String.appendChar 2\n" +
+                "push constant 101\n" +
+                "call String.appendChar 2\n" +
+                "push constant 115\n" +
+                "call String.appendChar 2\n" +
+                "push constant 116\n" +
+                "call String.appendChar 2\n" +
+                "push constant 20\n" +
+                "call MyClass.myMethod 3\n" +
+                "pop temp 0\n" + // pop for void method
+                "push constant 5\n" + // "hello" string literal
+                "call String.new 1\n" +
+                "push constant 104\n" + // H
+                "call String.appendChar 2\n" +
+                "push constant 101\n" + // e
+                "call String.appendChar 2\n" +
+                "push constant 108\n" + // l
+                "call String.appendChar 2\n" +
+                "push constant 108\n" + // l
+                "call String.appendChar 2\n" +
+                "push constant 111\n" + // o
+                "call String.appendChar 2\n" +
+                "pop local 0\n" +
+                "push local 0\n" +
+                "return\n" +
+                String.format("goto LBL_%d\n", numLabels - 1) +
+                String.format("label LBL_%d\n", numLabels - 2) +
+                String.format("label LBL_%d\n", numLabels - 1);
+        Assertions.assertEquals(expected, parsed);
     }
 
     @Test
