@@ -542,7 +542,7 @@ public class Parser {
         String subroutineName = tokenizer.getNextToken();
         compileParamList();
         SubroutineBody compiledSB = compileSubroutineBody();
-        sb.append(String.format("function %s %d\n", subroutineName, compiledSB.getNumLocals()));
+        sb.append(String.format("function %s.%s %d\n", currentClassName, subroutineName, compiledSB.getNumLocals()));
         if (subroutineType.equals("constructor")) {
             sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, classST.getFieldVarCount()));
             sb.append("call Memory.alloc 1\n" +

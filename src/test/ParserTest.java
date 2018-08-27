@@ -550,11 +550,11 @@ class ParserTest {
         parser.setCurrentClassName("MyClass");
         classST.define("myInt", "int", SymbolKind.FIELD);
         classST.define("myVar", "String", SymbolKind.FIELD);
-
+        parser.setCurrentClassName("MyClass");
         String parsed = parser.compileSubroutineDec();
         SubroutineSymbolTable subroutineST = parser.getSubroutineST();
         int numLabels = Parser.getNumLabels();
-        String expected = "function myMethod 3\n" +
+        String expected = "function MyClass.myMethod 3\n" +
                 "push argument 0\n" +
                 "pop pointer 0\n" +
                 "push this 0\n" +
