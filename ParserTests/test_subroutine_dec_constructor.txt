@@ -1,0 +1,5 @@
+constructor MyClass new(int x, String y) {
+    let myX = x;
+    let myY = y;
+    return this;
+}

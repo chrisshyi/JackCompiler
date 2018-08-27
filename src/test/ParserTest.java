@@ -605,6 +605,30 @@ class ParserTest {
     }
 
     @Test
+    void testSubroutineDecConstructor() throws IOException {
+        this.parser = new Parser(new File("ParserTests/test_subroutine_dec_constructor.txt"));
+        ClassSymbolTable classST = parser.getClassST();
+        parser.setCurrentClassName("MyClass");
+        classST.define("myX", "int", SymbolKind.FIELD);
+        classST.define("myY", "String", SymbolKind.FIELD);
+        parser.setCurrentClassName("MyClass");
+        String parsed = parser.compileSubroutineDec();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+
+        String expected = "function MyClass.new 0\n" +
+                "push constant 2\n" +
+                "call Memory.alloc 1\n" +
+                "pop pointer 0\n" +
+                "push argument 0\n" +
+                "pop this 0\n" +
+                "push argument 1\n" +
+                "pop this 1\n" +
+                "push pointer 0\n" +
+                "return\n";
+        assertEquals(expected, parsed);
+    }
+
+    @Test
     void testClassDecNoClassVar() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_dec_no_class_var.txt"));
         String expected = "<class>\n" +
