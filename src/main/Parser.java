@@ -1,6 +1,5 @@
 package main;
 
-import org.junit.jupiter.api.Test;
 import symbol.Symbol;
 import symbol.SymbolKind;
 import symboltable.ClassSymbolTable;
@@ -20,7 +19,6 @@ import java.util.regex.Pattern;
 public class Parser {
 
     private Tokenizer tokenizer;
-    private String outputFilePath;
     private SubroutineSymbolTable subroutineST;
     private ClassSymbolTable classST;
 
@@ -32,10 +30,6 @@ public class Parser {
     private String currentClassName = ""; // name of the class being compiled
     private static int numLabels = 0; // enumerated to keep labels unique
     // define Sets and Patterns for matching terminal elements
-    private final Set<String> keywordSet = new HashSet<>(Arrays.asList("class",
-            "constructor", "function", "method", "field", "static",
-            "var", "int", "char", "boolean", "void", "true", "false",
-            "if", "else", "while", "return"));
     private final Set<String> symbolSet = new HashSet<>(Arrays.asList("{", "}",
             "(", ")", "[", "]", ".", ",", ";", "+",
             "-", "*", "/", "&", "|", "<", ">", "=", "~"));
@@ -45,14 +39,17 @@ public class Parser {
             "*", "/", "&", "|", "<", ">", "="));
     private final Pattern intConstPattern = Pattern.compile("\\d+");
     private final Pattern stringConstPattern = Pattern.compile("\".+\"");
-    private final String terminalTemplate = "<%1$s>%2$s</%1$s>\n";
 
+    /**
+     * Special constructor for testing purposes
+     * @param inputFile the Jack source code file
+     * @throws IOException IOException
+     */
     public Parser(File inputFile) throws IOException {
         this.tokenizer = new Tokenizer(inputFile);
-        this.outputFilePath = extractFileNameWithoutExtension(inputFile.toString()) + ".xml";
-        this.subroutineST = new SubroutineSymbolTable();
-        this.classST = new ClassSymbolTable();
         this.codeGenerator = new CodeGenerator();
+        this.classST = new ClassSymbolTable();
+        this.subroutineST = new SubroutineSymbolTable();
     }
 
     public SubroutineSymbolTable getSubroutineST() {
@@ -63,10 +60,15 @@ public class Parser {
         return classST;
     }
 
-    public void parse() throws IOException {
-        File outputFile = new File(this.outputFilePath);
-        this.subroutineST = new SubroutineSymbolTable();
-        this.classST = new ClassSymbolTable();
+    /**
+     * Parses an input file (.jack file) and compiles it into VM code
+     * @param inputFile the input Jack source code file
+     * @throws IOException IOException
+     */
+    public void parse(File inputFile) throws IOException {
+        this.tokenizer = new Tokenizer(inputFile);
+        String outputFilePath = extractFileNameWithoutExtension(inputFile.toString()) + ".vm";
+        File outputFile = new File(outputFilePath);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write(compileClass());
         }
@@ -121,51 +123,6 @@ public class Parser {
             subroutineST.define(varName, varType, SymbolKind.ARGUMENT);
             nextToken = tokenizer.getNextToken();
         }
-    }
-
-    /**
-     * Returns a formatted string using a template
-     * @param terminalType the type of terminal element, as specified by the Jack grammar
-     * @param element the element itself
-     * @return a formatted string with the terminal element type and element substituted in
-     */
-    private String formatFromTemplate(String terminalType, String element) {
-        if (symbolSet.contains(element)) {
-            switch(element) {
-                case "<":
-                    element = "&lt;";
-                    break;
-                case ">":
-                    element = "&gt;";
-                    break;
-                case "\"":
-                    element = "&quot;";
-                    break;
-                case "&":
-                    element = "&amp;";
-                    break;
-                default:
-                    break;
-            }
-        }
-        return String.format(terminalTemplate, terminalType, element);
-    }
-
-    /**
-     * Compiles the XML representation of a general variable declaration (e.g. int myInt)
-     * @param type the variable type
-     * @param variable the name of the variable
-     * @return the XML representation of a general variable declaration
-     */
-    private String compileTypeAndVar(String type, String variable) {
-        StringBuilder sb = new StringBuilder();
-        if (keywordSet.contains(type)) {
-            sb.append(formatFromTemplate("keyword", type));
-        } else {
-            sb.append(formatFromTemplate("identifier", type));
-        }
-        sb.append(formatFromTemplate("identifier", variable));
-        return sb.toString();
     }
 
     /**
@@ -556,17 +513,15 @@ public class Parser {
     }
 
     /**
-     * Compiles the XML representation of a class declaration
-     * @return the XML representation of a class declaration
+     * Compiles the VM code for a class declaration
+     * @return the VM code for a class declaration
      */
     public String compileClass() {
         StringBuilder sb = new StringBuilder();
-//        sb.append("<class>\n");
-//        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "class"
-//        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // currentClassName
+        this.classST = new ClassSymbolTable();
         tokenizer.getNextToken(); // the "class" keyword
         this.currentClassName = tokenizer.getNextToken(); // name of the class
-        sb.append(formatFromTemplate("symbol", tokenizer.getNextToken())); // {
+        tokenizer.getNextToken(); // {
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals("static") || nextToken.equals("field")) {
             tokenizer.backTrack();
@@ -579,8 +534,6 @@ public class Parser {
             sb.append(compileSubroutineDec());
             nextToken = tokenizer.getNextToken();
         }
-        sb.append(formatFromTemplate("symbol", nextToken)); // }
-        sb.append("</class>\n");
         return sb.toString();
     }
 
@@ -611,7 +564,7 @@ public class Parser {
             case ARGUMENT:
                 memSeg = MemorySegment.ARGUMENT;
                 break;
-            case LOCAL:
+            case LOCAL: // unnecessary, kept for readability
                 memSeg = MemorySegment.LOCAL;
                 break;
         }

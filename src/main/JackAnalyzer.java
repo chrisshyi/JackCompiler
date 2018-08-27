@@ -37,7 +37,7 @@ public class JackAnalyzer {
         for (File jackFile : filesToTranslate) {
             if (jackFile.toString().endsWith(".jack")) {
                 Parser parser = new Parser(jackFile);
-                parser.parse();
+                parser.parse(jackFile);
             }
         }
     }
