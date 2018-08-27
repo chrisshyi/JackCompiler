@@ -875,161 +875,73 @@ class ParserTest {
     @Test
     void testNestedExpressions() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_nested_expressions.txt"));
-        String expected = "<statements>\n" +
-                "<ifStatement>\n" +
-                    "<keyword>if</keyword>\n" +
-                    "<symbol>(</symbol>\n" +
-                    "<expression>\n" +
-                    "<term>\n" +
-                        "<symbol>(</symbol>\n" +
-                        "<expression>\n" +
-                            "<term>\n" +
-                                "<symbol>(</symbol>\n" +
-                                "<expression>\n" +
-                                    "<term>\n" +
-                                    "<identifier>y</identifier>\n" +
-                                    "</term>\n" +
-                                    "<symbol>+</symbol>\n" +
-                                    "<term>\n" +
-                                    "<identifier>size</identifier>\n" +
-                                    "</term>\n" +
-                                "</expression>\n" +
-                                "<symbol>)</symbol>\n" +
-                            "</term>\n" +
-                        "<symbol>&lt;</symbol>\n" +
-                            "<term>\n" +
-                                "<integerConstant>254</integerConstant>\n" +
-                            "</term>\n" +
-                        "</expression>\n" +
-                    "<symbol>)</symbol>\n" +
-                "</term>\n" +
-                "<symbol>&amp;</symbol>\n" +
-                "<term>\n" +
-                    "<symbol>(</symbol>\n" +
-                    "<expression>\n" +
-                        "<term>\n" +
-                            "<symbol>(</symbol>\n" +
-                            "<expression>\n" +
-                                "<term>\n" +
-                                    "<identifier>x</identifier>\n" +
-                                "</term>\n" +
-                                "<symbol>+</symbol>\n" +
-                                "<term>\n" +
-                                    "<identifier>size</identifier>\n" +
-                                "</term>\n" +
-                            "</expression>\n" +
-                            "<symbol>)</symbol>\n" +
-                        "</term>\n" +
-                    "<symbol>&lt;</symbol>\n" +
-                    "<term>\n" +
-                        "<integerConstant>510</integerConstant>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>)</symbol>\n" +
-                "</term>\n" +
-                "</expression>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>{</symbol>\n" +
-                "<statements>\n" +
-                    "<doStatement>\n" +
-                        "<keyword>do</keyword>\n" +
-                        "<identifier>erase</identifier>\n" +
-                        "<symbol>(</symbol>\n" +
-                            "<expressionList>\n" +
-                            "</expressionList>\n" +
-                        "<symbol>)</symbol>\n" +
-                        "<symbol>;</symbol>\n" +
-                    "</doStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "</ifStatement>\n" +
-                "</statements>\n";
-        Assertions.assertEquals(expected, parser.compileStatements());
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        parser.setCurrentClassName("MyClass");
+
+        classST.define("y", "int", SymbolKind.FIELD);
+        classST.define("x", "int", SymbolKind.FIELD);
+        subroutineST.define("size", "int", SymbolKind.LOCAL);
+        String parsed = parser.compileStatements();
+        int numLabels = Parser.getNumLabels();
+
+        String expected = "push this 0\n" + // y
+                "push local 0\n" + // size
+                "add\n" +
+                "push constant 254\n" +
+                "lt\n" +
+                "push this 1\n" + // x
+                "push local 0\n" + // size
+                "add\n" +
+                "push constant 510\n" +
+                "lt\n" +
+                "and\n" +
+                "not\n" +
+                String.format("if-goto LBL_%d\n", numLabels - 2) +
+                "push pointer 0\n" +
+                "call MyClass.erase 1\n" +
+                "pop temp 0\n" +
+                String.format("goto LBL_%d\n", numLabels - 1) +
+                String.format("label LBL_%d\n", numLabels - 2) +
+                String.format("label LBL_%d\n", numLabels - 1);
+        Assertions.assertEquals(expected, parsed);
     }
 
     @Test
     void testNestedExpression2() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_nested_expressions_2.txt"));
-        String expected = "<statements>\n" +
-                "<ifStatement>\n" +
-                "<keyword>if</keyword>\n" +
-                "<symbol>(</symbol>\n" +
-                "<expression>\n" +
-                    "<term>\n" +
-                    "<symbol>(</symbol>\n" +
-                    "<expression>\n" +
-                        "<term>\n" +
-                        "<symbol>(</symbol>\n" +
-                        "<expression>\n" +
-                            "<term>\n" +
-                            "<identifier>y</identifier>\n" +
-                            "</term>\n" +
-                            "<symbol>+</symbol>\n" +
-                            "<term>\n" +
-                            "<identifier>size</identifier>\n" +
-                            "</term>\n" +
-                        "</expression>\n" +
-                        "<symbol>)</symbol>\n" +
-                        "</term>\n" +
-                    "<symbol>&lt;</symbol>\n" +
-                        "<term>\n" +
-                        "<integerConstant>254</integerConstant>\n" +
-                        "</term>\n" +
-                    "</expression>\n" +
-                    "<symbol>)</symbol>\n" +
-                    "</term>\n" +
-                    "<symbol>&amp;</symbol>\n" +
-                    "<term>\n" +
-                        "<symbol>(</symbol>\n" +
-                        "<expression>\n" +
-                        "<term>\n" +
-                            "<symbol>(</symbol>\n" +
-                            "<expression>\n" +
-                                "<term>\n" +
-                                    "<symbol>(</symbol>\n" +
-                                        "<expression>\n" +
-                                            "<term>\n" +
-                                                "<identifier>x</identifier>\n" +
-                                            "</term>\n" +
-                                            "<symbol>+</symbol>\n" +
-                                            "<term>\n" +
-                                                "<identifier>size</identifier>\n" +
-                                            "</term>\n" +
-                                        "</expression>\n" +
-                                    "<symbol>)</symbol>\n" +
-                                "</term>\n" +
-                                "<symbol>/</symbol>\n" +
-                                "<term>\n" +
-                                    "<integerConstant>5</integerConstant>\n" +
-                                "</term>\n" +
-                            "</expression>\n" +
-                            "<symbol>)</symbol>\n" +
-                        "</term>\n" +
-                        "<symbol>&lt;</symbol>\n" +
-                        "<term>\n" +
-                        "<integerConstant>510</integerConstant>\n" +
-                        "</term>\n" +
-                        "</expression>\n" +
-                        "<symbol>)</symbol>\n" +
-                    "</term>\n" +
-                "</expression>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>{</symbol>\n" +
-                "<statements>\n" +
-                "<doStatement>\n" +
-                "<keyword>do</keyword>\n" +
-                "<identifier>erase</identifier>\n" +
-                "<symbol>(</symbol>\n" +
-                "<expressionList>\n" +
-                "</expressionList>\n" +
-                "<symbol>)</symbol>\n" +
-                "<symbol>;</symbol>\n" +
-                "</doStatement>\n" +
-                "</statements>\n" +
-                "<symbol>}</symbol>\n" +
-                "</ifStatement>\n" +
-                "</statements>\n";
-        Assertions.assertEquals(expected, parser.compileStatements());
+        ClassSymbolTable classST = parser.getClassST();
+        SubroutineSymbolTable subroutineST = parser.getSubroutineST();
+        parser.setCurrentClassName("MyClass");
+
+        classST.define("y", "int", SymbolKind.FIELD);
+        classST.define("x", "int", SymbolKind.FIELD);
+        subroutineST.define("size", "int", SymbolKind.LOCAL);
+        String parsed = parser.compileStatements();
+        int numLabels = Parser.getNumLabels();
+
+        String expected = "push this 0\n" + // y
+                "push local 0\n" + // size
+                "add\n" +
+                "push constant 254\n" +
+                "lt\n" +
+                "push this 1\n" + // x
+                "push local 0\n" + // size
+                "add\n" +
+                "push constant 5\n" +
+                "call Math.divide 2\n" +
+                "push constant 510\n" +
+                "lt\n" +
+                "and\n" +
+                "not\n" +
+                String.format("if-goto LBL_%d\n", numLabels - 2) +
+                "push pointer 0\n" +
+                "call MyClass.erase 1\n" +
+                "pop temp 0\n" +
+                String.format("goto LBL_%d\n", numLabels - 1) +
+                String.format("label LBL_%d\n", numLabels - 2) +
+                String.format("label LBL_%d\n", numLabels - 1);
+        Assertions.assertEquals(expected, parsed);
     }
 
     @Test
