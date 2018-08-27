@@ -538,6 +538,7 @@ public class Parser {
         StringBuilder sb = new StringBuilder();
         this.subroutineST = new SubroutineSymbolTable(); // reset the subroutine level symbol table
         String subroutineType = tokenizer.getNextToken(); // "constructor" or "function" or "method"
+        tokenizer.getNextToken(); // return type
         String subroutineName = tokenizer.getNextToken();
         compileParamList();
         SubroutineBody compiledSB = compileSubroutineBody();
