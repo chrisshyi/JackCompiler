@@ -21,6 +21,7 @@ public class Parser {
     private Tokenizer tokenizer;
     private SubroutineSymbolTable subroutineST;
     private ClassSymbolTable classST;
+    private File inputFile;
 
     public static int getNumLabels() {
         return numLabels;
@@ -50,6 +51,7 @@ public class Parser {
         this.codeGenerator = new CodeGenerator();
         this.classST = new ClassSymbolTable();
         this.subroutineST = new SubroutineSymbolTable();
+        this.inputFile = inputFile;
     }
 
     public SubroutineSymbolTable getSubroutineST() {
@@ -62,12 +64,11 @@ public class Parser {
 
     /**
      * Parses an input file (.jack file) and compiles it into VM code
-     * @param inputFile the input Jack source code file
      * @throws IOException IOException
      */
-    public void parse(File inputFile) throws IOException {
-        this.tokenizer = new Tokenizer(inputFile);
-        String outputFilePath = extractFileNameWithoutExtension(inputFile.toString()) + ".vm";
+    public void parse() throws IOException {
+        this.tokenizer = new Tokenizer(this.inputFile);
+        String outputFilePath = extractFileNameWithoutExtension(this.inputFile.toString()) + ".vm";
         File outputFile = new File(outputFilePath);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write(compileClass());
