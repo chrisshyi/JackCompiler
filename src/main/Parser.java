@@ -437,7 +437,7 @@ public class Parser {
     public String compileReturnStatement() {
         StringBuilder sb = new StringBuilder();
         String nextToken = tokenizer.getNextToken();
-        if (nextToken.equals(";")) {
+        if (nextToken.equals(";")) { // return void
             sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, 0));
             sb.append("return\n");
             return sb.toString();
@@ -491,58 +491,66 @@ public class Parser {
 
     /**
      * Compiles the declaration of local variables into VM code
+     * @return number of local variables (needed for subroutine declaration)
      */
-    public void compileVarDec() {
+    public int compileVarDec() {
+        int numLocals = 0;
         tokenizer.getNextToken(); // var
         String varType = tokenizer.getNextToken(); // type
         String varName = tokenizer.getNextToken();
         subroutineST.define(varName, varType, SymbolKind.LOCAL);
+        numLocals++;
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals(",")) {
             varName = tokenizer.getNextToken();
             subroutineST.define(varName, varType, SymbolKind.LOCAL);
+            numLocals++;
             nextToken = tokenizer.getNextToken();
         }
+        return numLocals;
     }
 
     /**
-     * Compiles the XML representation of a subroutine body declaration
-     * @return the XML representation of a subroutine body declaration
+     * Compiles the VM code for a subroutine body declaration
+     * @return the VM code for a subroutine body declaration
      */
-    public String compileSubroutineBody() {
+    public SubroutineBody compileSubroutineBody() {
+        int numLocals = 0;
         StringBuilder sb = new StringBuilder();
         tokenizer.getNextToken(); // {
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals("var")) {
             tokenizer.backTrack();
-            compileVarDec();
+            numLocals += compileVarDec();
             nextToken = tokenizer.getNextToken();
         }
         tokenizer.backTrack();
         sb.append(compileStatements());
         tokenizer.getNextToken(); // }
-        return sb.toString();
+        return new SubroutineBody(numLocals, sb.toString());
     }
 
     /**
-     * Compiles the XML representation of a subroutine declaration
-     * @return the XML representation of a subroutine declaration
+     * Compiles the VM code for a subroutine declaration
+     * @return the VM code for a subroutine declaration
      */
     public String compileSubroutineDec() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<subroutineDec>\n");
-        // "constructor" or "function" or "method"
-        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken()));
-        String nextToken = tokenizer.getNextToken(); // return type
-        if (keywordSet.contains(nextToken)) {
-            sb.append(formatFromTemplate("keyword", nextToken));
-        } else {
-            sb.append(formatFromTemplate("identifier", nextToken));
-        }
-        sb.append(formatFromTemplate("identifier", tokenizer.getNextToken())); // subroutine name
+        this.subroutineST = new SubroutineSymbolTable(); // reset the subroutine level symbol table
+        String subroutineType = tokenizer.getNextToken(); // "constructor" or "function" or "method"
+        String subroutineName = tokenizer.getNextToken();
         compileParamList();
-        sb.append(compileSubroutineBody());
-        sb.append("</subroutineDec>\n");
+        SubroutineBody compiledSB = compileSubroutineBody();
+        sb.append(String.format("function %s %d\n", subroutineName, compiledSB.getNumLocals()));
+        if (subroutineType.equals("constructor")) {
+            sb.append(codeGenerator.generatePush(MemorySegment.CONSTANT, compiledSB.getNumLocals()));
+            sb.append("call Memory.alloc 1\n" +
+                    "pop pointer 0\n");
+        } else if (subroutineType.equals("method")) {
+            sb.append(codeGenerator.generatePush(MemorySegment.ARGUMENT, 0));
+            sb.append(codeGenerator.generatePop(MemorySegment.POINTER, 0));
+        }
+        sb.append(compiledSB.getVmCode());
         return sb.toString();
     }
 

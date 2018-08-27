@@ -3,6 +3,8 @@ package test;
 import main.ExpressionList;
 import main.Parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import main.SubroutineBody;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -401,19 +403,20 @@ class ParserTest {
     void testVarDecSingle() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_var_dec_single.txt"));
         SubroutineSymbolTable subroutineST = parser.getSubroutineST();
-        parser.compileVarDec();
+        int numLocals = parser.compileVarDec();
 
         Optional<Symbol> boxedSymbol = subroutineST.lookUp("myInt");
         assertTrue(boxedSymbol.isPresent());
         assertEquals("int", boxedSymbol.get().getDataType());
         assertEquals(0, boxedSymbol.get().getNumKind());
+        assertEquals(1, numLocals);
     }
 
     @Test
     void testVarDecMult() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_var_dec_mult.txt"));
         SubroutineSymbolTable subroutineST = parser.getSubroutineST();
-        parser.compileVarDec();
+        int numLocals = parser.compileVarDec();
 
         String[] varNames = {"obj1", "obj2", "obj3"};
         for (int i = 0; i < varNames.length; i++) {
@@ -422,6 +425,7 @@ class ParserTest {
             assertEquals("MyClass", boxedSymbol.get().getDataType());
             assertEquals(i, boxedSymbol.get().getNumKind());
         }
+        assertEquals(3, numLocals);
     }
 
     @Test
@@ -435,7 +439,7 @@ class ParserTest {
         classST.define("myInt", "int", SymbolKind.FIELD);
         classST.define("myVar", "String", SymbolKind.FIELD);
 
-        String parsed = parser.compileSubroutineBody();
+        SubroutineBody compiledSB = parser.compileSubroutineBody();
         int numLabels = Parser.getNumLabels();
 
         String expected = "push this 0\n" +
@@ -476,7 +480,8 @@ class ParserTest {
                 String.format("label LBL_%d\n", numLabels - 2) +
                 String.format("label LBL_%d\n", numLabels - 1);
 
-        Assertions.assertEquals(expected, parsed);
+        Assertions.assertEquals(expected, compiledSB.getVmCode());
+        assertEquals(0, compiledSB.getNumLocals());
     }
 
     @Test
@@ -488,7 +493,7 @@ class ParserTest {
         classST.define("myInt", "int", SymbolKind.FIELD);
         classST.define("myVar", "String", SymbolKind.FIELD);
 
-        String parsed = parser.compileSubroutineBody();
+        SubroutineBody compiledSB = parser.compileSubroutineBody();
         int numLabels = Parser.getNumLabels();
         String expected = "push this 0\n" +
                 "push constant 10\n" +
@@ -534,7 +539,8 @@ class ParserTest {
             assertEquals("MyClass", boxedSymbol.get().getDataType());
             assertEquals(i, boxedSymbol.get().getNumKind());
         }
-        Assertions.assertEquals(expected, parsed);
+        Assertions.assertEquals(expected, compiledSB.getVmCode());
+        assertEquals(3, compiledSB.getNumLocals());
     }
 
     @Test
