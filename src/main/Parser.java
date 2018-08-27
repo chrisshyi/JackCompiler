@@ -73,25 +73,25 @@ public class Parser {
     }
 
     /**
-     * Compiles the XML representation of a class variable declaration
-     * @return the XML representation as a string
+     * Adds class level symbols (static and field variables) to the class symbol table
      */
-    public String compileClassVarDec() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<classVarDec>\n");
-        sb.append(formatFromTemplate("keyword", tokenizer.getNextToken())); // "static" or "field"
+    public void compileClassVarDec() {
+        String varKind = tokenizer.getNextToken(); // "static" or "field"
         String varType = tokenizer.getNextToken(); // type
-        String variable = tokenizer.getNextToken();
-        sb.append(compileTypeAndVar(varType, variable));
+        String varName = tokenizer.getNextToken();
+        SymbolKind symKind;
+        if (varKind.equals("static")) {
+            symKind = SymbolKind.STATIC;
+        } else {
+            symKind = SymbolKind.FIELD;
+        }
+        classST.define(varName, varType, symKind);
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals(",")) {
-            sb.append(formatFromTemplate("symbol", nextToken));
-            sb.append(formatFromTemplate("identifier", tokenizer.getNextToken()));
+            varName = tokenizer.getNextToken();
+            classST.define(varName, varType, symKind);
             nextToken = tokenizer.getNextToken();
         }
-        sb.append(formatFromTemplate("symbol", nextToken));
-        sb.append("</classVarDec>\n");
-        return sb.toString();
     }
 
     /**
@@ -570,7 +570,7 @@ public class Parser {
         String nextToken = tokenizer.getNextToken();
         while (nextToken.equals("static") || nextToken.equals("field")) {
             tokenizer.backTrack();
-            sb.append(compileClassVarDec());
+            compileClassVarDec();
             nextToken = tokenizer.getNextToken();
         }
         Set<String> subroutineDecKeywords = new HashSet<>(Arrays.asList("constructor", "function", "method"));

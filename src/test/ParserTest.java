@@ -26,31 +26,30 @@ class ParserTest {
     @Test
     void testClassVarDecOneVar() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_var_dec_one.txt"));
-        // tests the declaration of a single variable
-        String expected = "<classVarDec>\n" +
-                "<keyword>field</keyword>\n" +
-                "<keyword>int</keyword>\n" +
-                "<identifier>myInt</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</classVarDec>\n";
-        Assertions.assertEquals(expected, parser.compileClassVarDec());
+        ClassSymbolTable classST = parser.getClassST();
+        parser.compileClassVarDec();
+
+        Optional<Symbol> boxedSymbol = classST.lookUp("myInt");
+        assertTrue(boxedSymbol.isPresent());
+        assertEquals(SymbolKind.FIELD, boxedSymbol.get().getSymbolKind());
+        assertEquals(0, boxedSymbol.get().getNumKind());
+        assertEquals("int", boxedSymbol.get().getDataType());
     }
 
     @Test
     void testClassVarDecMultiple() throws IOException {
         this.parser = new Parser(new File("ParserTests/test_class_var_dec_mult.txt"));
-        // tests the declaration of a single variable
-        String expected = "<classVarDec>\n" +
-                "<keyword>static</keyword>\n" +
-                "<identifier>String</identifier>\n" +
-                "<identifier>myStr1</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>myStr2</identifier>\n" +
-                "<symbol>,</symbol>\n" +
-                "<identifier>myStr3</identifier>\n" +
-                "<symbol>;</symbol>\n" +
-                "</classVarDec>\n";
-        Assertions.assertEquals(expected, parser.compileClassVarDec());
+        ClassSymbolTable classST = parser.getClassST();
+        parser.compileClassVarDec();
+
+        String[] varNames = {"myStr1", "myStr2", "myStr3"};
+        for (int i = 0; i < varNames.length; i++) {
+            Optional<Symbol> boxedSymbol = classST.lookUp(varNames[i]);
+            assertTrue(boxedSymbol.isPresent());
+            assertEquals(SymbolKind.STATIC, boxedSymbol.get().getSymbolKind());
+            assertEquals(i, boxedSymbol.get().getNumKind());
+            assertEquals("String", boxedSymbol.get().getDataType());
+        }
     }
 
     @Test
